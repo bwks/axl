@@ -58,7 +58,8 @@ class AXL(object):
                                  plugins=[ImportDoctor(imp)],
                                  transport=t)
 
-    def add_location(self, location,
+    def add_location(self,
+                     location,
                      kbits=512,
                      video_kbits=-1,
                      within_audio_bw=512,
@@ -98,7 +99,11 @@ class AXL(object):
         return al
 
     def add_region(self, region):
-
+        """
+        
+        :param region:
+        :return:
+        """
         ar = self.client.service.addRegion({
             'name': region
         })
@@ -108,6 +113,8 @@ class AXL(object):
     def update_region(self, region):
         """
         Update region and assign region to all other regions
+        :param region:
+        :return:
         """
         # Get all Regions
         _all_regions = self.client.service.listRegion({'name': '%'}, returnedTags={'name': ''})
@@ -150,7 +157,14 @@ class AXL(object):
         return ur
 
     def add_srst(self, srst, ip_address, port=2000, sip_port=''):
+        """
 
+        :param srst:
+        :param ip_address:
+        :param port:
+        :param sip_port:
+        :return:
+        """
         asrst = self.client.service.addSrst({
             'name': srst,
             'port': port,
@@ -160,13 +174,25 @@ class AXL(object):
 
         return asrst
 
-    def add_device_pool(self, device_pool,
+    def add_device_pool(self,
+                        device_pool,
                         date_time_group,
                         region,
                         location,
                         srst,
                         cm_group, network_locale='Australia'):
 
+        """
+
+        :param device_pool:
+        :param date_time_group:
+        :param region:
+        :param location:
+        :param srst:
+        :param cm_group:
+        :param network_locale:
+        :return:
+        """
         adp = self.client.service.addDevicePool({
             'name': device_pool,
             'dateTimeSettingName': date_time_group,  # update to state timezone
@@ -180,7 +206,13 @@ class AXL(object):
         return adp
 
     def update_device_pool(self, device_pool, route_group, media_resource_group_list):
+        """
 
+        :param device_pool:
+        :param route_group:
+        :param media_resource_group_list:
+        :return:
+        """
         udp = self.client.service.updateDevicePool(
                 name=device_pool,
                 localRouteGroupName=route_group,
@@ -189,13 +221,23 @@ class AXL(object):
 
         return udp
 
-    def add_conference_bridge(self, conference_bridge,
+    def add_conference_bridge(self,
+                              conference_bridge,
                               gateway_name,
                               device_pool,
                               location,
                               product='Cisco IOS Enhanced Conference Bridge',
                               security_profile='Non Secure Conference Bridge'):
+        """
 
+        :param conference_bridge:
+        :param gateway_name:
+        :param device_pool:
+        :param location:
+        :param product:
+        :param security_profile:
+        :return:
+        """
         acb = self.client.service.addConferenceBridge({
             'name': conference_bridge,
             'description': '{0} on {1}'.format(conference_bridge, gateway_name),
@@ -207,11 +249,19 @@ class AXL(object):
 
         return acb
 
-    def add_transcoder(self, transcoder,
+    def add_transcoder(self,
+                       transcoder,
                        gateway_name,
                        device_pool,
                        product='Cisco IOS Enhanced Media Termination Point'):
+        """
 
+        :param transcoder:
+        :param gateway_name:
+        :param device_pool:
+        :param product:
+        :return:
+        """
         at = self.client.service.addTranscoder({
             'name': transcoder,
             'description': '{0} on {1}'.format(transcoder, gateway_name),
@@ -221,7 +271,8 @@ class AXL(object):
 
         return at
 
-    def add_h323_gateway(self, gateway_loopback,
+    def add_h323_gateway(self,
+                         gateway_loopback,
                          gateway_name,
                          device_pool,
                          location,
@@ -250,7 +301,39 @@ class AXL(object):
                          clng_party_inat_trans_css='',
                          clng_party_unknown_trans_css='',
                          clng_party_sub_trans_css=''):
+        """
 
+        :param gateway_loopback:
+        :param gateway_name:
+        :param device_pool:
+        :param location:
+        :param prefix_dn:
+        :param sig_digits:
+        :param css:
+        :param aar_css:
+        :param aar_neighborhood:
+        :param product:
+        :param protocol:
+        :param protocol_side:
+        :param pstn_access:
+        :param redirect_in_num_ie:
+        :param redirect_out_num_ie:
+        :param cld_party_ie_num_type:
+        :param clng_party_ie_num_type:
+        :param clng_party_nat_pre:
+        :param clng_party_inat_prefix:
+        :param clng_party_unknown_prefix:
+        :param clng_party_sub_prefix:
+        :param clng_party_nat_strip_digits:
+        :param clng_party_inat_strip_digits:
+        :param clng_party_unknown_strip_digits:
+        :param clng_party_sub_strip_digits:
+        :param clng_party_nat_trans_css:
+        :param clng_party_inat_trans_css:
+        :param clng_party_unknown_trans_css:
+        :param clng_party_sub_trans_css:
+        :return:
+        """
         ahg = self.client.service.addH323Gateway({
             'name': gateway_loopback,
             'description': '{0} H323 Voice Gateway CLI FIXED'.format(gateway_name),
@@ -286,7 +369,12 @@ class AXL(object):
         return ahg
 
     def update_h323_gateway(self, gateway_loopback, media_resource_group_list):
+        """
 
+        :param gateway_loopback:
+        :param media_resource_group_list:
+        :return:
+        """
         ug = self.client.service.updateH323Gateway(
                 name=gateway_loopback,
                 mediaResourceListName=media_resource_group_list,
@@ -294,12 +382,21 @@ class AXL(object):
 
         return ug
 
-    def add_media_resource_group(self, media_resource_group,
+    def add_media_resource_group(self,
+                                 media_resource_group,
                                  mrg_description,
                                  conference_bridge,
                                  transcoder,
                                  multicast='false'):
+        """
 
+        :param media_resource_group:
+        :param mrg_description:
+        :param conference_bridge:
+        :param transcoder:
+        :param multicast:
+        :return:
+        """
         amrg = self.client.service.addMediaResourceGroup({
             'name': media_resource_group,
             'description': mrg_description,
@@ -316,7 +413,12 @@ class AXL(object):
         return amrg
 
     def add_media_resource_group_list(self, media_resource_group_list, mrgl_members):
+        """
 
+        :param media_resource_group_list:
+        :param mrgl_members:
+        :return:
+        """
         _member_list = [{'order': mrgl_members.index(i), 'mediaResourceGroupName': i} for i in mrgl_members]
 
         amrgl = self.client.service.addMediaResourceList({
@@ -329,6 +431,14 @@ class AXL(object):
         return amrgl
 
     def add_route_group(self, route_group, gateway_loopback, distribution_algorithm='Top Down'):
+        """
+
+        :param route_group:
+        :param gateway_loopback:
+        :param distribution_algorithm:
+        :return:
+        """
+
         arg = self.client.service.addRouteGroup({
             'name': route_group,
             'distributionAlgorithm': distribution_algorithm,
@@ -356,6 +466,23 @@ class AXL(object):
                  call_forward_destination='',
                  forward_all_to_vm='false',
                  forward_to_vm='false'):
+        """
+
+        :param pattern:
+        :param route_partition_name:
+        :param description:
+        :param alerting_name:
+        :param ascii_alerting_name:
+        :param shared_line_css:
+        :param aar_neighbourhood:
+        :param call_forward_css:
+        :param vm_profile_name:
+        :param aar_destination_mask:
+        :param call_forward_destination:
+        :param forward_all_to_vm:
+        :param forward_to_vm:
+        :return:
+        """
 
         al = self.client.service.addLine({
             'pattern': pattern,
@@ -488,7 +615,8 @@ class AXL(object):
 
         return acrp
 
-    def add_phone(self, name,
+    def add_phone(self,
+                  name,
                   description,
                   product,
                   device_pool,
