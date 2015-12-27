@@ -1,7 +1,7 @@
 """
 Class to interface with cisco ucm axl api.
 Author: Brad Searle
-Version: 0.1
+Version: 0.2
 """
 
 import ssl
@@ -24,10 +24,11 @@ class AXL(object):
     Your mileage may vary
     """
 
-    def __init__(self, username, password, cucm):
+    def __init__(self, username, password, cucm, cucm_version=10):
         self.username = username
         self.password = password
         self.cucm = cucm
+        self.cucm_version = cucm_version
 
         tns = 'http://schemas.cisco.com/ast/soap/'
         imp = Import('http://schemas.xmlsoap.org/soap/encoding/', 'http://schemas.xmlsoap.org/soap/encoding/')
@@ -44,13 +45,20 @@ class AXL(object):
         t.urlopener = urllib.request.build_opener(t.handler, t1)
 
         # CUCM 10.5
-        wsdl = 'file:///tools/envs/networktools/nettools/scripts/axlsqltoolkit/schema/10.5/AXLAPI.wsdl'
-        self.client = Client(wsdl, location='https://{0}:8443/axl/'.format(cucm), faults=False,
-                             plugins=[ImportDoctor(imp)],
-                             transport=t)
+        if self.cucm_version == 10:
+            wsdl = 'file:///tools/envs/networktools/nettools/scripts/axlsqltoolkit/schema/10.5/AXLAPI.wsdl'
+            self.client = Client(wsdl, location='https://{0}:8443/axl/'.format(cucm), faults=False,
+                                 plugins=[ImportDoctor(imp)],
+                                 transport=t)
+
+        # CUCM 8.5
+        else:
+            wsdl = 'file:///tools/envs/networktools/nettools/scripts/axlsqltoolkit/schema/8.5/AXLAPI.wsdl'
+            self.client = Client(wsdl, location='https://{0}:8443/axl/'.format(cucm), faults=False,
+                                 plugins=[ImportDoctor(imp)],
+                                 transport=t)
 
     def add_location(self, location,
-                     cucm_version=10,
                      kbits=512,
                      video_kbits=-1,
                      within_audio_bw=512,
@@ -68,7 +76,7 @@ class AXL(object):
         :param within_immersive_kbits:
         :return:
         """
-        if cucm_version == 10:
+        if self.cucm_version == 10:
 
             al = self.client.service.addLocation({
                 'name': location,
@@ -413,114 +421,124 @@ class AXL(object):
 
         return al
 
-
-class AddCTIRoutePoint(object):
-    """
-    Add CTI route point
-    lines should be a list of tuples containing the pattern and partition
-    EG: [('77777', 'AU_PHONE_PT')]
-    """
-
-    def __init__(self,
-                 ctiRoutePoint,
-                 description,
-                 devicePool,
-                 location,
-                 lines=[],
-                 product='CTI Route Point',
-                 devClass='CTI Route Point',
-                 protocol='SCCP',
-                 protocolSide='User',
-                 commonDeviceConfigName='AH_Standard_Phone_CDC',
-                 callingSearchSpaceName='AU_DEVICE_CSS',
-                 useTrustedRelayPoint='Default'):
+    def add_cti_route_point(self,
+                            cti_route_point,
+                            description,
+                            device_pool,
+                            location,
+                            common_device_config,
+                            css,
+                            lines=[],
+                            product='CTI Route Point',
+                            dev_class='CTI Route Point',
+                            protocol='SCCP',
+                            protocol_slide='User',
+                            use_trusted_relay_point='Default'):
+        """
+        Add CTI route point
+        lines should be a list of tuples containing the pattern and partition
+        EG: [('77777', 'AU_PHONE_PT')]
+        :param cti_route_point:
+        :param description:
+        :param device_pool:
+        :param location:
+        :param common_device_config:
+        :param css:
+        :param lines:
+        :param product:
+        :param dev_class:
+        :param protocol:
+        :param protocol_slide:
+        :param use_trusted_relay_point:
+        :return:
+        """
 
         def _add_lines(lines):
-
+            # adds a dict of lines to the line list
             _line_list = {'line': []}
-            _sentinel = 0
             for i in lines:
-                _sentinel += 1
-                _line_list['line'].append({'index': _sentinel,
-                                           'dirn': {
-                                               'pattern': i[0],
-                                               'routePartitionName': i[1],
-                                           }
-                                           })
-
+                _line_list['line'].append({
+                    'index': lines.index(i) + 1,
+                    'dirn': {
+                        'pattern': i[0],
+                        'routePartitionName': i[1],
+                    }
+                })
             return _line_list
 
-        self.cti_route_point = ctiRoutePoint
-        self.description = description
-        self.device_pool = devicePool
-        self.location = location
-        self.product = product
-        self.dev_class = devClass
-        self.protocol = protocol
-        self.protocol_slide = protocolSide
-        self.common_device_config = commonDeviceConfigName
-        self.css = callingSearchSpaceName
-        self.use_trusted_relay_point = useTrustedRelayPoint
-
         if lines:
-            self.lines = _add_lines(lines)
+            line_dict = _add_lines(lines)
         else:
-            self.lines = {'line': []}
+            line_dict = {'line': []}
 
-    def add_cti_route_point(self):
-
-        acrp = axl.client.service.addCtiRoutePoint({
-            'name': self.cti_route_point,
-            'description': self.description,
-            'product': self.product,
-            'class': self.dev_class,
-            'protocol': self.protocol,
-            'protocolSide': self.protocol_slide,
-            'commonDeviceConfigName': self.common_device_config,
-            'callingSearchSpaceName': self.css,
-            'devicePoolName': self.device_pool,
-            'locationName': self.location,
-            'useTrustedRelayPoint': self.use_trusted_relay_point,
-            'lines': self.lines
+        acrp = self.client.service.addCtiRoutePoint({
+            'name': cti_route_point,
+            'description': description,
+            'product': product,
+            'class': dev_class,
+            'protocol': protocol,
+            'protocolSide': protocol_slide,
+            'commonDeviceConfigName': common_device_config,
+            'callingSearchSpaceName': css,
+            'devicePoolName': device_pool,
+            'locationName': location,
+            'useTrustedRelayPoint': use_trusted_relay_point,
+            'lines': line_dict
         })
 
         return acrp
 
+    def add_phone(self, name,
+                  description,
+                  product,
+                  device_pool,
+                  location,
+                  phone_template,
+                  common_device_config,
+                  css,
+                  aar_css,
+                  subscribe_css,
+                  lines=[],
+                  em_service_url=True,
+                  dev_class='Phone',
+                  protocol='SCCP',
+                  softkey_template='Standard User',
+                  enable_em='true',
+                  ehook_enable=1):
 
-class AddPhone(object):
-    """
-    Add phone
-    lines takes a list of Tuples EG:
-    [('77777', 'Jim Smith', 'Jim Smith', 'Jim Smith - 77777', 'Jim Smith - 77777', '0294123456')]
-    """
+        """
+        Add phone
+        lines takes a list of Tuples EG:
 
-    def __init__(self,
-                 name,
-                 description,
-                 product,
-                 devicePoolName,
-                 locationName,
-                 phoneTemplateName,
-                 lines=[],
-                 emServiceURL=True,
-                 devClass='Phone',
-                 protocol='SCCP',
-                 commonDeviceConfigName='AH_Standard_Phone_CDC',
-                 softkeyTemplateName='Standard User',
-                 enableExtensionMobility='true',
-                 callingSearchSpaceName='AU_DEVICE_CSS',
-                 automatedAlternateRoutingCssName='AU_DEVICE_CSS',
-                 subscribeCallingSearchSpaceName='AU_SUBSCRIBE_CSS',
-                 ehookEnable=1):
+                                   display                           external
+            DN       display        ascii          label               mask
+        [('77777', 'Jim Smith', 'Jim Smith', 'Jim Smith - 77777', '0294127777')]
+
+        :param name:
+        :param description:
+        :param product:
+        :param device_pool:
+        :param location:
+        :param phone_template:
+        :param lines:
+        :param em_service_url:
+        :param dev_class:
+        :param protocol:
+        :param common_device_config:
+        :param softkey_template:
+        :param enable_em:
+        :param css:
+        :param aar_css:
+        :param subscribe_css:
+        :param ehook_enable:
+        :return:
+        """
 
         def _add_lines(lines):
             _line_list = {'line': []}
-            _sentinel = 0
             for i in lines:
-                _sentinel += 1
-
                 _line_list['line'].append({
-                    'index': _sentinel,
+                    'index': lines.index(i) + 1,
                     'dirn': {
                         'pattern': i[0],
                         'routePartitionName': 'AU_PHONE_PT'
@@ -528,66 +546,47 @@ class AddPhone(object):
                     'display': i[1],
                     'displayAscii': i[2],
                     'label': i[3],
-                    'e164Mask': i[5]
+                    'e164Mask': i[4]
                 })
             return _line_list
 
-        self.name = name
-        self.description = description
-        self.product = product
-        self.device_pool = devicePoolName
-        self.location = locationName
-        self.phone_template = phoneTemplateName
-        self.lines = lines
-        self.em_service_url = emServiceURL
-        self.dev_class = devClass
-        self.protocol = protocol
-        self.common_device_config = commonDeviceConfigName
-        self.softkey_template = softkeyTemplateName
-        self.enable_em = enableExtensionMobility
-        self.css = callingSearchSpaceName
-        self.aar_css = automatedAlternateRoutingCssName
-        self.subscribe_css = subscribeCallingSearchSpaceName
-        self.ehook_enable = ehookEnable
-
-        if emServiceURL:
-            self.services = {'service': [{
-                'telecasterServiceName': 'Extension Mobility',
-                'name': 'Extension Mobility',
-                'url': 'http://10.1.40.11:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#',
-                'urlButtonIndex': '1',
-                'urlLabel': 'Press here to log in',
-            }]
+        if em_service_url:
+            services = {
+                'service': [{
+                    'telecasterServiceName': 'Extension Mobility',
+                    'name': 'Extension Mobility',
+                    'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
+                    'urlButtonIndex': '1',
+                    'urlLabel': 'Press here to log in',
+                }]
             }
         else:
-            self.services = {'service': []}
+            services = {'service': []}
 
         if lines:
-            self.lines = _add_lines(lines)
+            line_dict = _add_lines(lines)
         else:
-            self.lines = {'line': []}
+            line_dict = {'line': []}
 
-    def add_phone(self):
-
-        ap = axl.client.service.addPhone({
-            'name': self.name,
-            'description': self.description,
-            'product': self.product,
-            'class': self.dev_class,
-            'protocol': self.protocol,
-            'commonDeviceConfigName': self.common_device_config,
-            'softkeyTemplateName': self.softkey_template,
-            'phoneTemplateName': self.phone_template,
-            'devicePoolName': self.device_pool,
-            'locationName': self.location,
-            'enableExtensionMobility': self.enable_em,
-            'callingSearchSpaceName': self.css,
-            'automatedAlternateRoutingCssName': self.aar_css,
-            'subscribeCallingSearchSpaceName': self.subscribe_css,
-            'lines': self.lines,
-            'services': self.services,
+        ap = self.client.service.addPhone({
+            'name': name,
+            'description': description,
+            'product': product,
+            'class': dev_class,
+            'protocol': protocol,
+            'commonDeviceConfigName': common_device_config,
+            'softkeyTemplateName': softkey_template,
+            'phoneTemplateName': phone_template,
+            'devicePoolName': device_pool,
+            'locationName': location,
+            'enableExtensionMobility': enable_em,
+            'callingSearchSpaceName': css,
+            'automatedAlternateRoutingCssName': aar_css,
+            'subscribeCallingSearchSpaceName': subscribe_css,
+            'lines': line_dict,
+            'services': services,
             'vendorConfig': [{
-                'ehookEnable': self.ehook_enable
+                'ehookEnable': ehook_enable
             }]
         })
 
