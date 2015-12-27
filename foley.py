@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 """
 Class to interface with cisco ucm axl api.
 Author: Brad Searle
