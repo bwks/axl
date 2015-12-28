@@ -1,4 +1,4 @@
-Python module for configuring cisco cucm with axl soap api
+Python module for configuring cisco cucm with axl soap api.
 Dependencies:
  Python 3
  suds-jurko
