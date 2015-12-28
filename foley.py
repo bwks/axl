@@ -100,7 +100,7 @@ class AXL(object):
 
     def add_region(self, region):
         """
-        
+
         :param region:
         :return:
         """
@@ -273,7 +273,7 @@ class AXL(object):
 
     def add_h323_gateway(self,
                          gateway_loopback,
-                         gateway_name,
+                         description,
                          device_pool,
                          location,
                          prefix_dn,
@@ -304,7 +304,7 @@ class AXL(object):
         """
 
         :param gateway_loopback:
-        :param gateway_name:
+        :param description:
         :param device_pool:
         :param location:
         :param prefix_dn:
@@ -336,7 +336,7 @@ class AXL(object):
         """
         ahg = self.client.service.addH323Gateway({
             'name': gateway_loopback,
-            'description': '{0} H323 Voice Gateway CLI FIXED'.format(gateway_name),
+            'description': description,
             'product': product,
             'protocol': protocol,
             'protocolSide': protocol_side,
