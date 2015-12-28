@@ -412,11 +412,11 @@ class AXL(object):
 
         return amrg
 
-    def add_media_resource_group_list(self, media_resource_group_list, mrgl_members):
+    def add_media_resource_group_list(self, media_resource_group_list, mrgl_members=[]):
         """
 
         :param media_resource_group_list:
-        :param mrgl_members:
+        :param mrgl_members: A list of mrgl member names
         :return:
         """
         _member_list = [{'order': mrgl_members.index(i), 'mediaResourceGroupName': i} for i in mrgl_members]
@@ -453,7 +453,8 @@ class AXL(object):
 
         return arg
 
-    def add_line(self, pattern,
+    def add_line(self,
+                 pattern,
                  route_partition_name,
                  description,
                  alerting_name,
