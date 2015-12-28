@@ -223,7 +223,7 @@ class AXL(object):
 
     def add_conference_bridge(self,
                               conference_bridge,
-                              gateway_name,
+                              description,
                               device_pool,
                               location,
                               product='Cisco IOS Enhanced Conference Bridge',
@@ -231,7 +231,7 @@ class AXL(object):
         """
 
         :param conference_bridge:
-        :param gateway_name:
+        :param description:
         :param device_pool:
         :param location:
         :param product:
@@ -240,7 +240,7 @@ class AXL(object):
         """
         acb = self.client.service.addConferenceBridge({
             'name': conference_bridge,
-            'description': '{0} on {1}'.format(conference_bridge, gateway_name),
+            'description': description,
             'devicePoolName': device_pool,
             'locationName': location,
             'product': product,
@@ -251,20 +251,20 @@ class AXL(object):
 
     def add_transcoder(self,
                        transcoder,
-                       gateway_name,
+                       description,
                        device_pool,
                        product='Cisco IOS Enhanced Media Termination Point'):
         """
 
         :param transcoder:
-        :param gateway_name:
+        :param description:
         :param device_pool:
         :param product:
         :return:
         """
         at = self.client.service.addTranscoder({
             'name': transcoder,
-            'description': '{0} on {1}'.format(transcoder, gateway_name),
+            'description': description,
             'devicePoolName': device_pool,
             'product': product,
         })
@@ -384,14 +384,14 @@ class AXL(object):
 
     def add_media_resource_group(self,
                                  media_resource_group,
-                                 mrg_description,
+                                 description,
                                  conference_bridge,
                                  transcoder,
                                  multicast='false'):
         """
 
         :param media_resource_group:
-        :param mrg_description:
+        :param description:
         :param conference_bridge:
         :param transcoder:
         :param multicast:
@@ -399,7 +399,7 @@ class AXL(object):
         """
         amrg = self.client.service.addMediaResourceGroup({
             'name': media_resource_group,
-            'description': mrg_description,
+            'description': description,
             'multicast': multicast,
             'members': {
                 'member': [{
