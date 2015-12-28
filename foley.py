@@ -178,7 +178,8 @@ class AXL(object):
                         region,
                         location,
                         srst,
-                        cm_group, network_locale='Australia'):
+                        cm_group,
+                        network_locale='Australia'):
 
         """
 
