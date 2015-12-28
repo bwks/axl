@@ -18,15 +18,23 @@ class AXL(object):
     """
     The AXL Class sets up the connection to the call manager.
     This works for me with my environment of;
-    Centos 7
-    Python 3
-    suds-jurko
-    Your mileage may vary
+    Centos 7, Python 3, suds-jurko.
+    Your mileage may vary.
     """
 
-    def __init__(self, username, password, cucm, cucm_version=10):
+    def __init__(self, username, password, wsdl, cucm, cucm_version=10):
+        """
+
+        :param username:
+        :param password:
+        :param wsdl:
+        :param cucm:
+        :param cucm_version:
+        :return:
+        """
         self.username = username
         self.password = password
+        self.wsdl = wsdl
         self.cucm = cucm
         self.cucm_version = cucm_version
 
@@ -44,19 +52,9 @@ class AXL(object):
         t1 = urllib.request.HTTPSHandler(context=ssl_def_context)
         t.urlopener = urllib.request.build_opener(t.handler, t1)
 
-        # CUCM 10.5
-        if self.cucm_version == 10:
-            wsdl = 'file:///tools/envs/networktools/nettools/scripts/axlsqltoolkit/schema/10.5/AXLAPI.wsdl'
-            self.client = Client(wsdl, location='https://{0}:8443/axl/'.format(cucm), faults=False,
-                                 plugins=[ImportDoctor(imp)],
-                                 transport=t)
-
-        # CUCM 8.5
-        else:
-            wsdl = 'file:///tools/envs/networktools/nettools/scripts/axlsqltoolkit/schema/8.5/AXLAPI.wsdl'
-            self.client = Client(wsdl, location='https://{0}:8443/axl/'.format(cucm), faults=False,
-                                 plugins=[ImportDoctor(imp)],
-                                 transport=t)
+        self.client = Client(self.wsdl, location='https://{0}:8443/axl/'.format(cucm), faults=False,
+                             plugins=[ImportDoctor(imp)],
+                             transport=t)
 
     def add_location(self,
                      location,
