@@ -636,12 +636,11 @@ class AXL(object):
                   ehook_enable=1):
 
         """
-        Add phone
-        lines takes a list of Tuples EG:
+        lines takes a list of Tuples with properties for each line EG:
 
-                                   display                           external
-            DN       display        ascii          label               mask
-        [('77777', 'Jim Smith', 'Jim Smith', 'Jim Smith - 77777', '0294127777')]
+                                               display                           external
+            DN     partition    display        ascii          label               mask
+        [('77777', 'LINE_PT', 'Jim Smith', 'Jim Smith', 'Jim Smith - 77777', '0294127777')]
 
         :param name:
         :param description:
@@ -670,12 +669,12 @@ class AXL(object):
                     'index': lines.index(i) + 1,
                     'dirn': {
                         'pattern': i[0],
-                        'routePartitionName': 'AU_PHONE_PT'
+                        'routePartitionName': i[1]
                     },
-                    'display': i[1],
-                    'displayAscii': i[2],
-                    'label': i[3],
-                    'e164Mask': i[4]
+                    'display': i[2],
+                    'displayAscii': i[3],
+                    'label': i[4],
+                    'e164Mask': i[5]
                 })
             return _line_list
 
