@@ -404,22 +404,22 @@ class AXL(object):
 
     def add_conference_bridge(self,
                               conference_bridge,
-                              description,
-                              device_pool,
-                              location,
+                              description='',
+                              device_pool='Default',
+                              location='Hub_None',
                               product='Cisco IOS Enhanced Conference Bridge',
                               security_profile='Non Secure Conference Bridge'):
         """
-
-        :param conference_bridge:
-        :param description:
-        :param device_pool:
-        :param location:
-        :param product:
-        :param security_profile:
-        :return:
+        Add a conference bridge
+        :param conference_bridge: Conference bridge name
+        :param description: Conference bridge description
+        :param device_pool: Device pool name
+        :param location: Location name
+        :param product: Conference bridge type
+        :param security_profile: Conference bridge security type
+        :return: result dictionary
         """
-        acb = self.client.service.addConferenceBridge({
+        resp = self.client.service.addConferenceBridge({
             'name': conference_bridge,
             'description': description,
             'devicePoolName': device_pool,
@@ -428,7 +428,51 @@ class AXL(object):
             'securityProfileName': security_profile
         })
 
-        return acb
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Conference bridge successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'Conference bridge already exists'.format(conference_bridge)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Conference bridge could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_conference_bridge(self, conference_bridge):
+        """
+        Delete a Conference bridge
+        :param conference_bridge: The name of the Conference bridge to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeConferenceBridge(name=conference_bridge)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Conference bridge successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'Conference bridge: {0} not found'.format(conference_bridge)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Conference bridge could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_transcoder(self,
                        transcoder,

@@ -30,7 +30,7 @@ class TestAXL(unittest.TestCase):
             self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
 
     def test_delete_non_existing_location_fails(self):
-        location = 'location_dont_exist'
+        location = 'location_not_exist'
         result = ucm.delete_location(location)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
 
@@ -51,7 +51,7 @@ class TestAXL(unittest.TestCase):
             self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
 
     def test_delete_non_existing_region_fails(self):
-        region = 'region_dont_exist'
+        region = 'region_not_exist'
         result = ucm.delete_region(region)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
 
@@ -72,7 +72,7 @@ class TestAXL(unittest.TestCase):
             self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
 
     def test_delete_non_existing_srst_fails(self):
-        srst = 'srst_dont_exist'
+        srst = 'srst_not_exist'
         result = ucm.delete_srst(srst)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
 
@@ -97,4 +97,27 @@ class TestAXL(unittest.TestCase):
     def test_delete_non_existing_device_pool_fails(self):
         device_pool = 'dp_dont_exist'
         result = ucm.delete_device_pool(device_pool)
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    # Conference Bridge
+    def test_add_conference_bridge_and_delete_conference_bridge_is_successful(self):
+        conference_bridge = 'test_cfb'
+        add_conf_bridge = ucm.add_conference_bridge(conference_bridge)
+        del_conf_bridge = ucm.delete_conference_bridge(conference_bridge)
+
+        self.assertEqual(add_conf_bridge['success'], True) and self.assertEqual(del_conf_bridge['success'], True)
+
+    def test_add_duplicate_conference_bridge_fails(self):
+            conference_bridge = 'test_dup_cfb'
+            ucm.add_conference_bridge(conference_bridge)
+            duplicate = ucm.add_conference_bridge(conference_bridge)
+
+            # clean up
+            ucm.delete_conference_bridge(conference_bridge)
+
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+
+    def test_delete_non_existing_conference_bridge_fails(self):
+        conference_bridge = 'cfb_not_exist'
+        result = ucm.delete_conference_bridge(conference_bridge)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
