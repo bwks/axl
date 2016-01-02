@@ -250,11 +250,11 @@ class AXL(object):
 
     def add_srst(self, srst, ip_address, port=2000, sip_port=5060):
         """
-
-        :param srst:
-        :param ip_address:
-        :param port:
-        :param sip_port:
+        Add SRST
+        :param srst: SRST name
+        :param ip_address: SRST ip address
+        :param port: SRST port
+        :param sip_port: SIP port
         :return: result dictionary
         """
         resp = self.client.service.addSrst({
@@ -542,14 +542,14 @@ class AXL(object):
 
     def add_h323_gateway(self,
                          gateway_loopback,
-                         description,
-                         device_pool,
-                         location,
-                         prefix_dn,
-                         sig_digits,
-                         css,
-                         aar_css,
-                         aar_neighborhood,
+                         description='',
+                         device_pool='Default',
+                         location='Hub_None',
+                         prefix_dn='',
+                         sig_digits='99',
+                         css='',
+                         aar_css='',
+                         aar_neighborhood='',
                          product='H.323 Gateway',
                          protocol='H.225',
                          protocol_side='Network',
@@ -571,13 +571,13 @@ class AXL(object):
                          clng_party_unknown_trans_css='',
                          clng_party_sub_trans_css=''):
         """
-
+        Add H323 gateway
         :param gateway_loopback:
         :param description:
         :param device_pool:
         :param location:
         :param prefix_dn:
-        :param sig_digits:
+        :param sig_digits: Significant digits, 99 = ALL
         :param css:
         :param aar_css:
         :param aar_neighborhood:
@@ -603,7 +603,7 @@ class AXL(object):
         :param clng_party_sub_trans_css:
         :return:
         """
-        ahg = self.client.service.addH323Gateway({
+        resp = self.client.service.addH323Gateway({
             'name': gateway_loopback,
             'description': description,
             'product': product,
@@ -635,7 +635,54 @@ class AXL(object):
             'callingPartySubscriberTransformationCssName': clng_party_sub_trans_css
         })
 
-        return ahg
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'H323 gateway successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'H323 gateway already exists'.format(gateway_loopback)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'H323 gateway could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_h323_gateway(self, h323_gateway):
+        """
+        Delete a H323 gateway
+        :param h323_gateway: The name of the H323 gateway to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeH323Gateway(name=h323_gateway)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'H323 gateway successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'H323 gateway: {0} not found'.format(h323_gateway)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'H323 gateway could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def get_h323_gateway(self):
+        return self.client.service.listH323Gateway({'name': '%'}, returnedTags={'name': '', 'sigDigits': ''})
 
     def update_h323_gateway(self, gateway_loopback, media_resource_group_list):
         """

@@ -137,11 +137,34 @@ class TestAXL(unittest.TestCase):
             duplicate = ucm.add_transcoder(transcoder)
 
             # clean up
-            ucm.delete_conference_bridge(transcoder)
+            ucm.delete_transcoder(transcoder)
 
             self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
 
     def test_delete_non_existing_transcoder_fails(self):
         transcoder = 'trans_not_exist'
         result = ucm.delete_transcoder(transcoder)
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    # H323 Gateway
+    def test_add_h323_gateway_and_delete_h323_gateway_is_successful(self):
+        h323_gateway = '192.168.100.200'
+        add_h323_gateway = ucm.add_h323_gateway(h323_gateway)
+        del_h323_gateway = ucm.delete_h323_gateway(h323_gateway)
+
+        self.assertEqual(add_h323_gateway['success'], True) and self.assertEqual(del_h323_gateway['success'], True)
+
+    def test_add_duplicate_h323_gateway_fails(self):
+            h323_gateway = 'test_dup_trans'
+            ucm.add_h323_gateway(h323_gateway)
+            duplicate = ucm.add_h323_gateway(h323_gateway)
+
+            # clean up
+            ucm.delete_h323_gateway(h323_gateway)
+
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+
+    def test_delete_non_existing_h323_gateway_fails(self):
+        h323_gateway = '6.6.6.6'
+        result = ucm.delete_h323_gateway(h323_gateway)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
