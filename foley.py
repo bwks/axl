@@ -152,11 +152,55 @@ class AXL(object):
         :param region:
         :return: result dictionary
         """
-        ar = self.client.service.addRegion({
+        resp = self.client.service.addRegion({
             'name': region
         })
 
-        return ar
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Region successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'Region already exists'.format(region)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Region could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_region(self, region):
+        """
+        Delete a location
+        :param region: The name of the region to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeRegion(name=region)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Region successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'Region: {0} not found'.format(region)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Region could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
 
     def update_region(self, region):
         """
