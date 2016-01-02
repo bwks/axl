@@ -248,7 +248,7 @@ class AXL(object):
 
         return ur
 
-    def add_srst(self, srst, ip_address, port=2000, sip_port=''):
+    def add_srst(self, srst, ip_address, port=2000, sip_port=5060):
         """
 
         :param srst:
@@ -312,25 +312,25 @@ class AXL(object):
 
     def add_device_pool(self,
                         device_pool,
-                        date_time_group,
-                        region,
-                        location,
-                        srst,
-                        cm_group,
+                        date_time_group='CMLocal',
+                        region='Default',
+                        location='',
+                        srst='Disable',
+                        cm_group='Default',
                         network_locale='Australia'):
 
         """
-
-        :param device_pool:
-        :param date_time_group:
-        :param region:
-        :param location:
-        :param srst:
-        :param cm_group:
-        :param network_locale:
-        :return:
+        Add a device pool
+        :param device_pool: Device pool name
+        :param date_time_group: Date time group name
+        :param region: Region name
+        :param location: Location name
+        :param srst: SRST name
+        :param cm_group: CM Group name
+        :param network_locale: Network locale name
+        :return: result dictionary
         """
-        adp = self.client.service.addDevicePool({
+        resp = self.client.service.addDevicePool({
             'name': device_pool,
             'dateTimeSettingName': date_time_group,  # update to state timezone
             'regionName': region,
@@ -340,7 +340,51 @@ class AXL(object):
             'networkLocale': network_locale,
         })
 
-        return adp
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Device pool successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'Device pool already exists'.format(srst)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Device pool could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_device_pool(self, device_pool):
+        """
+        Delete a Device pool
+        :param device_pool: The name of the Device pool to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeDevicePool(name=device_pool)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Device pool successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'Device pool: {0} not found'.format(device_pool)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Device pool could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
 
     def update_device_pool(self, device_pool, route_group, media_resource_group_list):
         """
