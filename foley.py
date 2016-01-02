@@ -102,10 +102,10 @@ class AXL(object):
 
         if resp[0] == 200:
             return 'Location successfully added'
-        elif resp[0] == 500:
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
             return 'Location: {0} already exists'.format(location)
         else:
-            return 'Location could not be added: {0}'.format(resp)
+            return 'Location could not be added: {0}'.format(resp[1].faultstring)
 
     def delete_location(self, location):
         """
@@ -117,10 +117,10 @@ class AXL(object):
 
         if resp[0] == 200:
             return 'Location successfully deleted'
-        elif resp[0] == 500:
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
             return 'Location: {0} not found'.format(location)
         else:
-            return 'Unknown response: {0}'.format(resp)
+            return 'Unknown response: {0}'.format(resp[1].faultstring)
 
     def add_region(self, region):
         """
