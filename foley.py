@@ -79,7 +79,7 @@ class AXL(object):
         :param within_audio_bw:
         :param within_video_bw:
         :param within_immersive_kbits:
-        :return:
+        :return: result dictionary
         """
         if self.cucm_version == 10:
 
@@ -100,33 +100,57 @@ class AXL(object):
                 'videoKbits': video_kbits,
             })
 
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
         if resp[0] == 200:
-            return 'Location successfully added'
+            result['success'] = True
+            result['msg'] = 'Location successfully added'
+            return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            return 'Location: {0} already exists'.format(location)
+            result['msg'] = 'Location already exists'.format(location)
+            result['error'] = resp[1].faultstring
+            return result
         else:
-            return 'Location could not be added: {0}'.format(resp[1].faultstring)
+            result['msg'] = 'Location could not be added'
+            result['error'] = resp[1].faultstring
+            return result
 
     def delete_location(self, location):
         """
         Delete a location
         :param location: The name of the location to delete
-        :return: string result
+        :return: result dictionary
         """
         resp = self.client.service.removeLocation(name=location)
 
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
         if resp[0] == 200:
-            return 'Location successfully deleted'
+            result['success'] = True
+            result['msg'] = 'Location successfully deleted'
+            return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            return 'Location: {0} not found'.format(location)
+            result['msg'] = 'Location: {0} not found'.format(location)
+            result['error'] = resp[1].faultstring
+            return result
         else:
-            return 'Unknown response: {0}'.format(resp[1].faultstring)
+            result['msg'] = 'Location could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_region(self, region):
         """
 
         :param region:
-        :return:
+        :return: result dictionary
         """
         ar = self.client.service.addRegion({
             'name': region

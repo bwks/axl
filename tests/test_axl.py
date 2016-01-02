@@ -15,23 +15,24 @@ class TestAXL(unittest.TestCase):
 
     def test_add_location_is_successful(self):
         result = ucm.add_location('test_location')
-        self.assertEqual(result, 'Location successfully added')
+        self.assertEqual(result['success'], True)
 
     def test_delete_location_is_successful(self):
         result = ucm.delete_location('test_location')
-        self.assertEqual(result, 'Location successfully deleted')
+        self.assertEqual(result['success'], True)
 
     def test_add_duplicate_location_fails(self):
-        location = 'test_dup_location'
-        ucm.add_location(location)
-        duplicate = ucm.add_location(location)
+            location = 'test_dup_location'
+            ucm.add_location(location)
+            duplicate = ucm.add_location(location)
 
-        # clean up
-        ucm.delete_location(location)
+            # clean up
+            ucm.delete_location(location)
 
-        self.assertEqual(duplicate, 'Location: {0} already exists'.format(location))
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
 
     def test_delete_non_existing_location_fails(self):
         location = 'i_dont_exist'
         duplicate = ucm.delete_location(location)
-        self.assertEqual(duplicate, 'Location: {0} not found'.format(location))
+        self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'not found')
+
