@@ -26,13 +26,17 @@ class AXL(object):
 
     def __init__(self, username, password, wsdl, cucm, cucm_version=10):
         """
-
-        :param username:
-        :param password:
-        :param wsdl:
-        :param cucm:
-        :param cucm_version:
+        :param username: axl username
+        :param password: axl password
+        :param wsdl: wsdl file location
+        :param cucm: UCM IP address
+        :param cucm_version: UCM version
         :return:
+
+        example usage:
+        >>> from axl.foley import AXL
+        >>> wsdl = 'file:///path/to/wsdl/axlsqltoolkit/schema/10.5/AXLAPI.wsdl'
+        >>> ucm = AXL('axl_user', 'axl_pass' wsdl, '192.168.200.10')
         """
         self.username = username
         self.password = password
@@ -79,7 +83,7 @@ class AXL(object):
         """
         if self.cucm_version == 10:
 
-            al = self.client.service.addLocation({
+            resp = self.client.service.addLocation({
                 'name': location,
                 # CUCM 10.6
                 'withinAudioBandwidth': within_audio_bw,
@@ -89,14 +93,34 @@ class AXL(object):
 
         else:
 
-            al = self.client.service.addLocation({
+            resp = self.client.service.addLocation({
                 'name': location,
                 # CUCM 8.6
                 'kbits': kbits,
                 'videoKbits': video_kbits,
             })
 
-        return al
+        if resp[0] == 200:
+            return 'Location successfully added'
+        elif resp[0] == 500:
+            return 'Location: {0} already exists'.format(location)
+        else:
+            return 'Location could not be added: {0}'.format(resp)
+
+    def delete_location(self, location):
+        """
+        Delete a location
+        :param location: The name of the location to delete
+        :return: string result
+        """
+        resp = self.client.service.removeLocation(name=location)
+
+        if resp[0] == 200:
+            return 'Location successfully deleted'
+        elif resp[0] == 500:
+            return 'Location: {0} not found'.format(location)
+        else:
+            return 'Unknown response: {0}'.format(resp)
 
     def add_region(self, region):
         """
