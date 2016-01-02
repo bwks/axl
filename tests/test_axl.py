@@ -29,12 +29,12 @@ class TestAXL(unittest.TestCase):
 
             self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
 
-    # Region
     def test_delete_non_existing_location_fails(self):
         location = 'i_dont_exist'
         duplicate = ucm.delete_location(location)
         self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'not found')
 
+    # Region
     def test_add_region_and_delete_region_is_successful(self):
         add_reg = ucm.add_region('test_region')
         del_reg = ucm.delete_region('test_region')
@@ -54,3 +54,9 @@ class TestAXL(unittest.TestCase):
         region = 'i_dont_exist'
         duplicate = ucm.delete_region(region)
         self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'not found')
+
+    # SRST
+    def test_add_srst_and_delete_srst_is_successful(self):
+        add_srst = ucm.add_srst('test_srst', '192.168.100.100')
+        del_srst = ucm.delete_srst('test_srst')
+        self.assertEqual(add_srst['success'], True) and self.assertEqual(del_srst['success'], True)

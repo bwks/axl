@@ -71,14 +71,14 @@ class AXL(object):
                      within_immersive_kbits=-1):
 
         """
-        Add a location to cucm
-        :param location:
-        :param cucm_version:
-        :param kbits:
-        :param video_kbits:
-        :param within_audio_bw:
-        :param within_video_bw:
-        :param within_immersive_kbits:
+        Add a location
+        :param location: Name of the location to add
+        :param cucm_version: ucm version
+        :param kbits: ucm 8.5
+        :param video_kbits: ucm 8.5
+        :param within_audio_bw: ucm 10
+        :param within_video_bw: ucm 10
+        :param within_immersive_kbits: ucm 10
         :return: result dictionary
         """
         if self.cucm_version == 10:
@@ -148,8 +148,8 @@ class AXL(object):
 
     def add_region(self, region):
         """
-
-        :param region:
+        Add a region
+        :param region: Name of the region to add
         :return: result dictionary
         """
         resp = self.client.service.addRegion({
@@ -255,16 +255,60 @@ class AXL(object):
         :param ip_address:
         :param port:
         :param sip_port:
-        :return:
+        :return: result dictionary
         """
-        asrst = self.client.service.addSrst({
+        resp = self.client.service.addSrst({
             'name': srst,
             'port': port,
             'ipAddress': ip_address,
             'SipPort': sip_port,
         })
 
-        return asrst
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'SRST successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'SRST already exists'.format(srst)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'SRST could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_srst(self, srst):
+        """
+        Delete a SRST
+        :param srst: The name of the SRST to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeSrst(name=srst)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'SRST successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'SRST: {0} not found'.format(srst)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'SRST could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_device_pool(self,
                         device_pool,
