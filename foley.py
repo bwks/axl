@@ -476,8 +476,8 @@ class AXL(object):
 
     def add_transcoder(self,
                        transcoder,
-                       description,
-                       device_pool,
+                       description='',
+                       device_pool='Default',
                        product='Cisco IOS Enhanced Media Termination Point'):
         """
 
@@ -487,14 +487,58 @@ class AXL(object):
         :param product:
         :return:
         """
-        at = self.client.service.addTranscoder({
+        resp = self.client.service.addTranscoder({
             'name': transcoder,
             'description': description,
             'devicePoolName': device_pool,
             'product': product,
         })
 
-        return at
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Conference bridge successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'Conference bridge already exists'.format(transcoder)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Conference bridge could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_transcoder(self, transcoder):
+        """
+        Delete a Transcoder
+        :param transcoder: The name of the Transcoder to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeTranscoder(name=transcoder)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Transcoder successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'Transcoder: {0} not found'.format(transcoder)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Transcoder could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_h323_gateway(self,
                          gateway_loopback,

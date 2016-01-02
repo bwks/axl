@@ -121,3 +121,27 @@ class TestAXL(unittest.TestCase):
         conference_bridge = 'cfb_not_exist'
         result = ucm.delete_conference_bridge(conference_bridge)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    # Transcoder
+    def test_add_transcoder_and_delete_transcoder_is_successful(self):
+
+        transcoder = 'test_trans'
+        add_transcoder = ucm.add_transcoder(transcoder)
+        del_transcoder = ucm.delete_transcoder(transcoder)
+
+        self.assertEqual(add_transcoder['success'], True) and self.assertEqual(del_transcoder['success'], True)
+
+    def test_add_duplicate_transcoder_fails(self):
+            transcoder = 'test_dup_trans'
+            ucm.add_transcoder(transcoder)
+            duplicate = ucm.add_transcoder(transcoder)
+
+            # clean up
+            ucm.delete_conference_bridge(transcoder)
+
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+
+    def test_delete_non_existing_transcoder_fails(self):
+        transcoder = 'trans_not_exist'
+        result = ucm.delete_transcoder(transcoder)
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
