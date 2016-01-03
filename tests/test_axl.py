@@ -179,7 +179,7 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(del_media_resource_group['success'], True)
 
     def test_add_duplicate_media_resource_group_fails(self):
-            media_resource_group = 'test_dup_trans'
+            media_resource_group = 'test_dup_mrg'
             ucm.add_media_resource_group(media_resource_group)
             duplicate = ucm.add_media_resource_group(media_resource_group)
 
@@ -191,4 +191,28 @@ class TestAXL(unittest.TestCase):
     def test_delete_non_existing_media_resource_group_fails(self):
         media_resource_group = 'mrg_not_exist'
         result = ucm.delete_media_resource_group(media_resource_group)
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    # Media resource group list
+    def test_add_media_resource_group_list_and_delete_media_resource_group_list_is_successful(self):
+        media_resource_group_list = 'test_mrgl'
+        add_media_resource_group_list = ucm.add_media_resource_group_list(media_resource_group_list)
+        del_media_resource_group_list = ucm.delete_media_resource_group_list(media_resource_group_list)
+
+        self.assertEqual(add_media_resource_group_list['success'], True) and \
+        self.assertEqual(del_media_resource_group_list['success'], True)
+
+    def test_add_duplicate_media_resource_group_list_fails(self):
+            media_resource_group_list = 'test_dup_mrgl'
+            ucm.add_media_resource_group_list(media_resource_group_list)
+            duplicate = ucm.add_media_resource_group_list(media_resource_group_list)
+
+            # clean up
+            ucm.delete_media_resource_group_list(media_resource_group_list)
+
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+
+    def test_delete_non_existing_media_resource_group_list_fails(self):
+        media_resource_group_list = 'mrgl_not_exist'
+        result = ucm.delete_media_resource_group_list(media_resource_group_list)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')

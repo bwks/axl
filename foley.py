@@ -704,12 +704,12 @@ class AXL(object):
                                  multicast='false',
                                  members=[]):
         """
-
-        :param media_resource_group:
-        :param description:
-        :param multicast:
-        :param members:
-        :return:
+        Add a media resource group
+        :param media_resource_group: Media resource group name
+        :param description: Media resource description
+        :param multicast: Mulicast enabled
+        :param members: Media resource group members
+        :return: result dictionary
         """
         resp = self.client.service.addMediaResourceGroup({
             'name': media_resource_group,
@@ -732,7 +732,7 @@ class AXL(object):
             result['msg'] = 'Media resource group successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Media resource group  already exists'.format(media_resource_group)
+            result['msg'] = 'Media resource group already exists'.format(media_resource_group)
             result['error'] = resp[1].faultstring
             return result
         else:
@@ -743,7 +743,7 @@ class AXL(object):
     def delete_media_resource_group(self, media_resource_group):
         """
         Delete a Media resource group
-        :param media_resource_group: The name of the Media resource group to delete
+        :param media_resource_group: The name of the media resource group to delete
         :return: result dictionary
         """
         resp = self.client.service.removeMediaResourceGroup(name=media_resource_group)
@@ -767,23 +767,67 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
-    def add_media_resource_group_list(self, media_resource_group_list, mrgl_members=[]):
+    def add_media_resource_group_list(self, media_resource_group_list, members=[]):
         """
-
-        :param media_resource_group_list:
-        :param mrgl_members: A list of mrgl member names
+        Add a media resource group list
+        :param media_resource_group_list: Media resource group list name
+        :param members: A list of members
         :return:
         """
-        _member_list = [{'order': mrgl_members.index(i), 'mediaResourceGroupName': i} for i in mrgl_members]
-
-        amrgl = self.client.service.addMediaResourceList({
+        resp = self.client.service.addMediaResourceList({
             'name': media_resource_group_list,
-            'members': {
-                'member': _member_list,
-            }
+            'members': {'member': []}
         })
 
-        return amrgl
+        if members:
+            [resp['members']['member'].append({'order': members.index(i),
+                                               'mediaResourceGroupName': i}) for i in members]
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Media resource group list successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'Media resource group list already exists'.format(media_resource_group_list)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Media resource group list could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_media_resource_group_list(self, media_resource_group_list):
+        """
+        Delete a Media resource group list
+        :param media_resource_group_list: The name of the media resource group list to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeMediaResourceList(name=media_resource_group_list)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Media resource group list successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Media resource group list could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_route_group(self, route_group, gateway_loopback, distribution_algorithm='Top Down'):
         """
