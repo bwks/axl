@@ -248,3 +248,18 @@ class TestAXL(unittest.TestCase):
 
         self.assertEqual(add_directory_number['success'], True) and \
         self.assertEqual(del_directory_number['success'], True)
+
+    def test_add_directory_number_fails(self):
+            directory_number = '9876543210'
+            ucm.add_directory_number(directory_number)
+            duplicate = ucm.add_directory_number(directory_number)
+
+            # clean up
+            ucm.delete_directory_number(directory_number)
+
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+
+    def test_delete_non_existing_directory_number_fails(self):
+        directory_number = '987654321'
+        result = ucm.delete_route_group(directory_number)
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
