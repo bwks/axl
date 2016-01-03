@@ -19,7 +19,7 @@ from suds.xsd.doctor import ImportDoctor
 class AXL(object):
     """
     The AXL Class sets up the connection to the call manager.
-    This works for me with my environment of;
+    Tested with environment of;
     Centos 7, Python 3, suds-jurko.
     Your mileage may vary.
     """
@@ -829,28 +829,70 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
-    def add_route_group(self, route_group, gateway_loopback, distribution_algorithm='Top Down'):
+    def add_route_group(self, route_group, members=[], distribution_algorithm='Top Down'):
         """
-
+        Add route group
         :param route_group:
-        :param gateway_loopback:
+        :param members:
         :param distribution_algorithm:
-        :return:
+        :return: result dictionary
         """
 
-        arg = self.client.service.addRouteGroup({
+        resp = self.client.service.addRouteGroup({
             'name': route_group,
             'distributionAlgorithm': distribution_algorithm,
-            'members': {
-                'member': {
-                    'deviceName': gateway_loopback,
-                    'deviceSelectionOrder': 1,
-                    'port': 0,
-                }
-            }
+            'members': {'member': []}
         })
 
-        return arg
+        if members:
+            [resp['members']['member'].append({'deviceName': i,
+                                               'deviceSelectionOrder': members.index(i) + 1,
+                                               'port': 0}) for i in members]
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Route group successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'Route group already exists'.format(route_group)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Route group could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_route_group(self, route_group):
+        """
+        Delete a Route group
+        :param route_group: The name of the Route group to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeRouteGroup(name=route_group)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Route group successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'Route group: {0} not found'.format(route_group)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Route group could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_line(self,
                  pattern,

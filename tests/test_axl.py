@@ -216,3 +216,26 @@ class TestAXL(unittest.TestCase):
         media_resource_group_list = 'mrgl_not_exist'
         result = ucm.delete_media_resource_group_list(media_resource_group_list)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    # Route group
+    def test_add_route_group_and_delete_route_group_is_successful(self):
+        route_group = 'test_route_group'
+        add_route_group = ucm.add_route_group(route_group)
+        del_route_group = ucm.delete_route_group(route_group)
+
+        self.assertEqual(add_route_group['success'], True) and self.assertEqual(del_route_group['success'], True)
+
+    def test_add_route_group_fails(self):
+            route_group = 'test_dup_rg'
+            ucm.add_route_group(route_group)
+            duplicate = ucm.add_route_group(route_group)
+
+            # clean up
+            ucm.delete_route_group(route_group)
+
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+
+    def test_delete_non_existing_route_group_fails(self):
+        route_group = 'route_group_not_exist'
+        result = ucm.delete_route_group(route_group)
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
