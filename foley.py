@@ -700,33 +700,72 @@ class AXL(object):
 
     def add_media_resource_group(self,
                                  media_resource_group,
-                                 description,
-                                 conference_bridge,
-                                 transcoder,
-                                 multicast='false'):
+                                 description='',
+                                 multicast='false',
+                                 members=[]):
         """
 
         :param media_resource_group:
         :param description:
-        :param conference_bridge:
-        :param transcoder:
         :param multicast:
+        :param members:
         :return:
         """
-        amrg = self.client.service.addMediaResourceGroup({
+        resp = self.client.service.addMediaResourceGroup({
             'name': media_resource_group,
             'description': description,
             'multicast': multicast,
-            'members': {
-                'member': [{
-                    'deviceName': conference_bridge
-                }, {
-                    'deviceName': transcoder
-                }]
-            }
+            'members': {'member': []}
         })
 
-        return amrg
+        if members:
+            [resp['members']['member'].append({'deviceName': i}) for i in members]
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Media resource group successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'Media resource group  already exists'.format(media_resource_group)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Media resource group could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_media_resource_group(self, media_resource_group):
+        """
+        Delete a Media resource group
+        :param media_resource_group: The name of the Media resource group to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeMediaResourceGroup(name=media_resource_group)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Media resource group successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'Media resource group: {0} not found'.format(media_resource_group)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Media resource group could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_media_resource_group_list(self, media_resource_group_list, mrgl_members=[]):
         """

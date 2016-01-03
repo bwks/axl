@@ -168,3 +168,27 @@ class TestAXL(unittest.TestCase):
         h323_gateway = '6.6.6.6'
         result = ucm.delete_h323_gateway(h323_gateway)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    # Media resource group
+    def test_add_media_resource_group_and_delete_media_resource_group_is_successful(self):
+        media_resource_group = 'test_mrg'
+        add_media_resource_group = ucm.add_media_resource_group(media_resource_group)
+        del_media_resource_group = ucm.delete_media_resource_group(media_resource_group)
+
+        self.assertEqual(add_media_resource_group['success'], True) and \
+        self.assertEqual(del_media_resource_group['success'], True)
+
+    def test_add_duplicate_media_resource_group_fails(self):
+            media_resource_group = 'test_dup_trans'
+            ucm.add_media_resource_group(media_resource_group)
+            duplicate = ucm.add_media_resource_group(media_resource_group)
+
+            # clean up
+            ucm.delete_media_resource_group(media_resource_group)
+
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+
+    def test_delete_non_existing_media_resource_group_fails(self):
+        media_resource_group = 'mrg_not_exist'
+        result = ucm.delete_media_resource_group(media_resource_group)
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
