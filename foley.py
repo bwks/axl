@@ -1135,18 +1135,18 @@ class AXL(object):
             return result
 
     def add_phone(self,
-                  name,
-                  description,
-                  product,
-                  device_pool,
-                  location,
-                  phone_template,
-                  common_device_config,
-                  css,
-                  aar_css,
-                  subscribe_css,
+                  phone,
+                  description='',
+                  product='Cisco 7941',
+                  device_pool='Default',
+                  location='Hub_None',
+                  phone_template='Standard 7941 SCCP',
+                  common_device_config='',
+                  css='',
+                  aar_css='',
+                  subscribe_css='',
                   lines=[],
-                  em_service_url=True,
+                  em_service_url=False,
                   dev_class='Phone',
                   protocol='SCCP',
                   softkey_template='Standard User',
@@ -1214,8 +1214,8 @@ class AXL(object):
         else:
             line_dict = {'line': []}
 
-        ap = self.client.service.addPhone({
-            'name': name,
+        resp = self.client.service.addPhone({
+            'name': phone,
             'description': description,
             'product': product,
             'class': dev_class,
@@ -1236,4 +1236,48 @@ class AXL(object):
             }]
         })
 
-        return ap
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Phone successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'Phone already exists'.format(phone)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Phone could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_phone(self, phone):
+        """
+        Add a phone
+        :param phone: The name of the phone to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removePhone(name=phone)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Phone successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'Phone: {0} not found'.format(phone)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Phone could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result

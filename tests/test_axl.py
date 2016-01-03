@@ -279,11 +279,34 @@ class TestAXL(unittest.TestCase):
             duplicate = ucm.add_cti_route_point(cti_route_point)
 
             # clean up
-            ucm.delete_directory_number(cti_route_point)
+            ucm.delete_cti_route_point(cti_route_point)
 
             self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
 
     def test_delete_non_existing_cti_route_point_fails(self):
         cti_route_point = 'cti_non_exist'
         result = ucm.delete_cti_route_point(cti_route_point)
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    # Phones
+    def test_add_phone_and_delete_phone_is_successful(self):
+        phone = 'sepaaaabbbbcccc'
+        add_phone = ucm.add_phone(phone)
+        del_phone = ucm.delete_phone(phone)
+
+        self.assertEqual(add_phone['success'], True) and self.assertEqual(del_phone['success'], True)
+
+    def test_add_phone_fails(self):
+            phone = 'sepaaaabbbbdddd'
+            ucm.add_phone(phone)
+            duplicate = ucm.add_phone(phone)
+
+            # clean up
+            ucm.delete_phone(phone)
+
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+
+    def test_delete_non_existing_phone_fails(self):
+        phone = 'sepaaaabbbbeeee'
+        result = ucm.delete_phone(phone)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
