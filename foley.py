@@ -894,22 +894,23 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
-    def add_line(self,
-                 pattern,
-                 route_partition_name,
-                 description,
-                 alerting_name,
-                 ascii_alerting_name,
-                 shared_line_css,
-                 aar_neighbourhood,
-                 call_forward_css,
-                 vm_profile_name='NoVoiceMail',
-                 aar_destination_mask='',
-                 call_forward_destination='',
-                 forward_all_to_vm='false',
-                 forward_to_vm='false'):
+    def add_directory_number(self,
+                             pattern,
+                             route_partition_name='',
+                             description='',
+                             alerting_name='',
+                             ascii_alerting_name='',
+                             shared_line_css='',
+                             aar_neighbourhood='',
+                             call_forward_css='',
+                             vm_profile_name='NoVoiceMail',
+                             aar_destination_mask='',
+                             call_forward_destination='',
+                             forward_all_to_vm='false',
+                             forward_all_destination='',
+                             forward_to_vm='false'):
         """
-
+        Add a directory number
         :param pattern:
         :param route_partition_name:
         :param description:
@@ -922,11 +923,12 @@ class AXL(object):
         :param aar_destination_mask:
         :param call_forward_destination:
         :param forward_all_to_vm:
+        :param forward_all_destination:
         :param forward_to_vm:
         :return:
         """
 
-        al = self.client.service.addLine({
+        resp = self.client.service.addLine({
             'pattern': pattern,
             'routePartitionName': route_partition_name,
             'description': description,
@@ -939,7 +941,7 @@ class AXL(object):
             'callForwardAll': {
                 'forwardToVoiceMail': forward_all_to_vm,
                 'callingSearchSpaceName': call_forward_css,
-                'destination': '',
+                'destination': forward_all_destination,
             },
             'callForwardBusy': {
                 'forwardToVoiceMail': forward_to_vm,
@@ -988,7 +990,51 @@ class AXL(object):
             },
         })
 
-        return al
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Directory number successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'Directory number already exists'.format(pattern)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Directory number could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_directory_number(self, directory_number):
+        """
+        Delete a directory number
+        :param directory_number: The name of the directory number to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeLine(pattern=directory_number)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Directory number successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'Directory number: {0} not found'.format(directory_number)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Directory number could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_cti_route_point(self,
                             cti_route_point,

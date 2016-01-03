@@ -239,3 +239,12 @@ class TestAXL(unittest.TestCase):
         route_group = 'route_group_not_exist'
         result = ucm.delete_route_group(route_group)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    # Directory number
+    def test_add_directory_number_and_delete_directory_number_is_successful(self):
+        directory_number = '12345678'
+        add_directory_number = ucm.add_directory_number(directory_number)
+        del_directory_number = ucm.delete_directory_number(directory_number)
+
+        self.assertEqual(add_directory_number['success'], True) and \
+        self.assertEqual(del_directory_number['success'], True)
