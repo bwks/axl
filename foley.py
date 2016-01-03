@@ -911,21 +911,21 @@ class AXL(object):
                              forward_to_vm='false'):
         """
         Add a directory number
-        :param pattern:
-        :param route_partition_name:
-        :param description:
-        :param alerting_name:
-        :param ascii_alerting_name:
-        :param shared_line_css:
-        :param aar_neighbourhood:
-        :param call_forward_css:
-        :param vm_profile_name:
-        :param aar_destination_mask:
-        :param call_forward_destination:
-        :param forward_all_to_vm:
-        :param forward_all_destination:
-        :param forward_to_vm:
-        :return:
+        :param pattern: Directory number
+        :param route_partition_name: Route partition name
+        :param description: Directory number description
+        :param alerting_name: Alerting name
+        :param ascii_alerting_name: ASCII alerting name
+        :param shared_line_css: Calling search space
+        :param aar_neighbourhood: AAR group
+        :param call_forward_css: Call forward calling search space
+        :param vm_profile_name: Voice mail profile
+        :param aar_destination_mask: AAR destination mask
+        :param call_forward_destination: Call forward destination
+        :param forward_all_to_vm: Forward all to voice mail checkbox
+        :param forward_all_destination: Forward all destination
+        :param forward_to_vm: Forward to voice mail checkbox
+        :return: result dictionary
         """
 
         resp = self.client.service.addLine({
