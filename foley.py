@@ -1038,55 +1038,37 @@ class AXL(object):
 
     def add_cti_route_point(self,
                             cti_route_point,
-                            description,
-                            device_pool,
-                            location,
-                            common_device_config,
-                            css,
-                            lines=[],
+                            description='',
+                            device_pool='Default',
+                            location='Hub_None',
+                            common_device_config='',
+                            css='',
                             product='CTI Route Point',
                             dev_class='CTI Route Point',
                             protocol='SCCP',
                             protocol_slide='User',
-                            use_trusted_relay_point='Default'):
+                            use_trusted_relay_point='Default',
+                            lines=[]):
         """
         Add CTI route point
         lines should be a list of tuples containing the pattern and partition
         EG: [('77777', 'AU_PHONE_PT')]
-        :param cti_route_point:
-        :param description:
-        :param device_pool:
-        :param location:
-        :param common_device_config:
-        :param css:
-        :param lines:
-        :param product:
-        :param dev_class:
-        :param protocol:
-        :param protocol_slide:
-        :param use_trusted_relay_point:
+        :param cti_route_point: CTI route point name
+        :param description: CTI route point description
+        :param device_pool: Device pool name
+        :param location: Location name
+        :param common_device_config: Common device config name
+        :param css: Calling search space name
+        :param product: CTI device type
+        :param dev_class: CTI device type
+        :param protocol: CTI protocol
+        :param protocol_slide: CTI protocol slide
+        :param use_trusted_relay_point: Use trusted relay point: (Default, On, Off)
+        :param lines: A list of tuples of [(directory_number, partition)]
         :return:
         """
 
-        def _add_lines(lines):
-            # adds a dict of lines to the line list
-            _line_list = {'line': []}
-            for i in lines:
-                _line_list['line'].append({
-                    'index': lines.index(i) + 1,
-                    'dirn': {
-                        'pattern': i[0],
-                        'routePartitionName': i[1],
-                    }
-                })
-            return _line_list
-
-        if lines:
-            line_dict = _add_lines(lines)
-        else:
-            line_dict = {'line': []}
-
-        acrp = self.client.service.addCtiRoutePoint({
+        resp = self.client.service.addCtiRoutePoint({
             'name': cti_route_point,
             'description': description,
             'product': product,
@@ -1098,10 +1080,59 @@ class AXL(object):
             'devicePoolName': device_pool,
             'locationName': location,
             'useTrustedRelayPoint': use_trusted_relay_point,
-            'lines': line_dict
+            'lines': {'line': []}
         })
 
-        return acrp
+        if lines:
+            [resp['lines']['line'].append({'index': lines.index(i) + 1,
+                                           'dirn': {'pattern': i[0], 'routePartitionName': i[1]}
+                                           }) for i in lines]
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'CTI route point successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'CTI route point already exists'.format(cti_route_point)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'CTI route point could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_cti_route_point(self, cti_route_point):
+        """
+        Delete a CTI route point
+        :param cti_route_point: The name of the CTI route point to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeCtiRoutePoint(name=cti_route_point)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'CTI route point successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'CTI route point: {0} not found'.format(cti_route_point)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'CTI route point could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_phone(self,
                   name,

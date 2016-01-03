@@ -263,3 +263,27 @@ class TestAXL(unittest.TestCase):
         directory_number = '987654321'
         result = ucm.delete_route_group(directory_number)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    # CTI route point
+    def test_add_cti_route_point_and_delete_cti_route_point_is_successful(self):
+        cti_route_point = 'test_cti_rp'
+        add_cti_route_point = ucm.add_cti_route_point(cti_route_point)
+        del_cti_route_point = ucm.delete_cti_route_point(cti_route_point)
+
+        self.assertEqual(add_cti_route_point['success'], True) and \
+        self.assertEqual(del_cti_route_point['success'], True)
+
+    def test_add_cti_route_point_fails(self):
+            cti_route_point = 'test_dup_cti'
+            ucm.add_cti_route_point(cti_route_point)
+            duplicate = ucm.add_cti_route_point(cti_route_point)
+
+            # clean up
+            ucm.delete_directory_number(cti_route_point)
+
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+
+    def test_delete_non_existing_cti_route_point_fails(self):
+        cti_route_point = 'cti_non_exist'
+        result = ucm.delete_cti_route_point(cti_route_point)
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
