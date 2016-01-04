@@ -4,6 +4,9 @@ Author: Brad Searle
 Version: 0.2
 Dependencies:
  - suds-jurko: https://bitbucket.org/jurko/suds
+
+Links:
+ - http://www.imdb.com/character/ch0005280/
 """
 
 import ssl
@@ -1146,11 +1149,13 @@ class AXL(object):
                   aar_css='',
                   subscribe_css='',
                   lines=[],
-                  em_service_url=False,
                   dev_class='Phone',
                   protocol='SCCP',
                   softkey_template='Standard User',
                   enable_em='true',
+                  em_service_url=False,
+                  em_url_button_index='1',
+                  em_url_label='Press here to logon',
                   ehook_enable=1):
 
         """
@@ -1159,60 +1164,28 @@ class AXL(object):
                                                display                           external
             DN     partition    display        ascii          label               mask
         [('77777', 'LINE_PT', 'Jim Smith', 'Jim Smith', 'Jim Smith - 77777', '0294127777')]
-
-        :param name:
+        Add A phone
+        :param phone:
         :param description:
         :param product:
         :param device_pool:
         :param location:
         :param phone_template:
-        :param lines:
-        :param em_service_url:
-        :param dev_class:
-        :param protocol:
         :param common_device_config:
-        :param softkey_template:
-        :param enable_em:
         :param css:
         :param aar_css:
         :param subscribe_css:
+        :param lines:
+        :param dev_class:
+        :param protocol:
+        :param softkey_template:
+        :param enable_em:
+        :param em_service_url:
+        :param em_url_button_index:
+        :param em_url_label:
         :param ehook_enable:
         :return:
         """
-
-        def _add_lines(lines):
-            _line_list = {'line': []}
-            for i in lines:
-                _line_list['line'].append({
-                    'index': lines.index(i) + 1,
-                    'dirn': {
-                        'pattern': i[0],
-                        'routePartitionName': i[1]
-                    },
-                    'display': i[2],
-                    'displayAscii': i[3],
-                    'label': i[4],
-                    'e164Mask': i[5]
-                })
-            return _line_list
-
-        if em_service_url:
-            services = {
-                'service': [{
-                    'telecasterServiceName': 'Extension Mobility',
-                    'name': 'Extension Mobility',
-                    'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
-                    'urlButtonIndex': '1',
-                    'urlLabel': 'Press here to log in',
-                }]
-            }
-        else:
-            services = {'service': []}
-
-        if lines:
-            line_dict = _add_lines(lines)
-        else:
-            line_dict = {'line': []}
 
         resp = self.client.service.addPhone({
             'name': phone,
@@ -1229,12 +1202,34 @@ class AXL(object):
             'callingSearchSpaceName': css,
             'automatedAlternateRoutingCssName': aar_css,
             'subscribeCallingSearchSpaceName': subscribe_css,
-            'lines': line_dict,
-            'services': services,
+            'lines': {'line': []},
+            'services': {'service': []},
             'vendorConfig': [{
                 'ehookEnable': ehook_enable
             }]
         })
+
+        if lines:
+            [resp['lines']['line'].append({
+                    'index': lines.index(i) + 1,
+                    'dirn': {
+                        'pattern': i[0],
+                        'routePartitionName': i[1]
+                    },
+                    'display': i[2],
+                    'displayAscii': i[3],
+                    'label': i[4],
+                    'e164Mask': i[5]
+                }) for i in lines]
+
+        if em_service_url:
+            resp['services']['service'].append([{
+                    'telecasterServiceName': 'Extension Mobility',
+                    'name': 'Extension Mobility',
+                    'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
+                    'urlButtonIndex': em_url_button_index,
+                    'urlLabel': em_url_label,
+                }])
 
         result = {
             'success': False,

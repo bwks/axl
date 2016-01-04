@@ -6,9 +6,9 @@ import unittest
 
 from axl.foley import AXL
 
-
+cucm = '10.10.11.14'
 wsdl = 'file:///Users/brad/Documents/code/python/axl/axlsqltoolkit/schema/10.5/AXLAPI.wsdl'
-ucm = AXL('admin', 'asdfpoiu', wsdl, '192.168.200.10')
+ucm = AXL('admin', 'asdfpoiu', wsdl, cucm)
 
 
 class TestAXL(unittest.TestCase):
