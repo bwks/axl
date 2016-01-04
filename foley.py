@@ -178,6 +178,76 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def update_region(self, region, moh_region):
+        """
+        Update region and assign region to all other regions
+        :param region:
+        :param moh_region:
+        :return:
+        """
+        # Get all Regions
+        all_regions = self.client.service.listRegion({'name': '%'}, returnedTags={'name': ''})
+
+        # Make list of region names
+        region_names = [str(i['name']) for i in all_regions[1]['return']['region']]
+
+        # Build list of dictionaries to add to region api call
+        region_list = []
+
+        for i in region_names:
+            # Highest codec within a region
+            if i == region:
+                region_list.append({
+                    'regionName': i,
+                    'bandwidth': '256 kbps (L16, AAC-LD)',
+                    'videoBandwidth': '-1',
+                    'lossyNetwork': 'Use System Default',
+                })
+
+            # Music on hold region name
+            elif i == moh_region:
+                region_list.append({
+                    'regionName': i,
+                    'bandwidth': '64 kbps (G.722, G.711)',
+                    'videoBandwidth': '-1',
+                    'lossyNetwork': 'Use System Default',
+                })
+
+            # All else G.729
+            else:
+                region_list.append({
+                    'regionName': i,
+                    'bandwidth': '8 kbps (G.729)',
+                    'videoBandwidth': '-1',
+                    'lossyNetwork': 'Use System Default',
+                })
+
+        resp = self.client.service.updateRegion(name=region,
+                                                relatedRegions={'relatedRegion': region_list})
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Region successfully updated'
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(region) in resp[1].faultstring:
+            result['msg'] = 'Region: {0} not found'.format(region)
+            result['error'] = resp[1].faultstring
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(moh_region) in resp[1].faultstring:
+            result['msg'] = 'MOH region: {0} not found'.format(moh_region)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Region could not be updated'
+            result['error'] = resp[1].faultstring
+            return result
+
     def delete_region(self, region):
         """
         Delete a location
@@ -204,52 +274,6 @@ class AXL(object):
             result['msg'] = 'Region could not be deleted'
             result['error'] = resp[1].faultstring
             return result
-
-    def update_region(self, region):
-        """
-        Update region and assign region to all other regions
-        :param region:
-        :return:
-        """
-        # Get all Regions
-        _all_regions = self.client.service.listRegion({'name': '%'}, returnedTags={'name': ''})
-
-        # Make list of region names
-        _region_names = [str(i['name']) for i in _all_regions[1]['return']['region']]
-
-        # Build list of dictionaries to add to region api call
-        _region_list = []
-
-        for i in _region_names:
-            if i == region:
-                _region_list.append({
-                    'regionName': i,
-                    'bandwidth': '256 kbps (L16, AAC-LD)',
-                    'videoBandwidth': '-1',
-                    'lossyNetwork': 'Use System Default',
-                })
-
-            # Music on hold region name
-            elif i == 'MOH_R':
-                _region_list.append({
-                    'regionName': i,
-                    'bandwidth': '64 kbps (G.722, G.711)',
-                    'videoBandwidth': '-1',
-                    'lossyNetwork': 'Use System Default',
-                })
-
-            else:
-                _region_list.append({
-                    'regionName': i,
-                    'bandwidth': '8 kbps (G.729)',
-                    'videoBandwidth': '-1',
-                    'lossyNetwork': 'Use System Default',
-                })
-
-        ur = self.client.service.updateRegion(name=region,
-                                              relatedRegions={'relatedRegion': _region_list})
-
-        return ur
 
     def add_srst(self, srst, ip_address, port=2000, sip_port=5060):
         """
@@ -313,6 +337,12 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_device_pools(self):
+        return self.client.service.listDevicePool({'name': '%'}, returnedTags={'name': '', 'localRouteGroupName': ''})
+
+    def get_device_pool(self, device_pool):
+        return self.client.service.getDevicePool(name=device_pool)
+
     def add_device_pool(self,
                         device_pool,
                         date_time_group='CMLocal',
@@ -362,6 +392,47 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def update_device_pool_rg_mrgl(self, device_pool, route_group, media_resource_group_list):
+        """
+        Update a device pools route group and media resource group list
+        :param device_pool:
+        :param route_group:
+        :param media_resource_group_list:
+        :return:
+        """
+        resp = self.client.service.updateDevicePool(
+                name=device_pool,
+                localRouteGroup={'name': 'Standard Local Route Group', 'value': route_group},
+                mediaResourceListName=media_resource_group_list
+        )
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Device pool successfully updated'
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(device_pool) in resp[1].faultstring:
+            result['msg'] = 'Device pool: {0} not found'.format(device_pool)
+            result['error'] = resp[1].faultstring
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(route_group) in resp[1].faultstring:
+            result['msg'] = 'Route group: {0} not found'.format(route_group)
+            result['error'] = resp[1].faultstring
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(media_resource_group_list) in resp[1].faultstring:
+            result['msg'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Device pool could not be updated'
+            result['error'] = resp[1].faultstring
+            return result
+
     def delete_device_pool(self, device_pool):
         """
         Delete a Device pool
@@ -388,22 +459,6 @@ class AXL(object):
             result['msg'] = 'Device pool could not be deleted'
             result['error'] = resp[1].faultstring
             return result
-
-    def update_device_pool(self, device_pool, route_group, media_resource_group_list):
-        """
-
-        :param device_pool:
-        :param route_group:
-        :param media_resource_group_list:
-        :return:
-        """
-        udp = self.client.service.updateDevicePool(
-                name=device_pool,
-                localRouteGroupName=route_group,
-                mediaResourceListName=media_resource_group_list
-        )
-
-        return udp
 
     def add_conference_bridge(self,
                               conference_bridge,
@@ -543,8 +598,11 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_h323_gateway(self):
+        return self.client.service.listH323Gateway({'name': '%'}, returnedTags={'name': '', 'sigDigits': ''})
+
     def add_h323_gateway(self,
-                         name,
+                         h323_gateway,
                          description='',
                          device_pool='Default',
                          location='Hub_None',
@@ -575,7 +633,7 @@ class AXL(object):
                          clng_party_sub_trans_css=''):
         """
         Add H323 gateway
-        :param name:
+        :param h323_gateway:
         :param description:
         :param device_pool:
         :param location:
@@ -607,7 +665,7 @@ class AXL(object):
         :return:
         """
         resp = self.client.service.addH323Gateway({
-            'name': name,
+            'name': h323_gateway,
             'description': description,
             'product': product,
             'protocol': protocol,
@@ -649,11 +707,46 @@ class AXL(object):
             result['msg'] = 'H323 gateway successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'H323 gateway already exists'.format(name)
+            result['msg'] = 'H323 gateway already exists'.format(h323_gateway)
             result['error'] = resp[1].faultstring
             return result
         else:
             result['msg'] = 'H323 gateway could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def update_h323_gateway_mrgl(self, h323_gateway, media_resource_group_list):
+        """
+
+        :param h323_gateway:
+        :param media_resource_group_list:
+        :return:
+        """
+        resp = self.client.service.updateH323Gateway(
+                name=h323_gateway,
+                mediaResourceListName=media_resource_group_list,
+        )
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'H323 gateway successfully updated'
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(h323_gateway) in resp[1].faultstring:
+            result['msg'] = 'H323 gateway: {0} not found'.format(h323_gateway)
+            result['error'] = resp[1].faultstring
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(media_resource_group_list) in resp[1].faultstring:
+            result['msg'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'H323 gateway could not be updated'
             result['error'] = resp[1].faultstring
             return result
 
@@ -684,43 +777,8 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
-    def get_h323_gateway(self):
-        return self.client.service.listH323Gateway({'name': '%'}, returnedTags={'name': '', 'sigDigits': ''})
-
-    def update_h323_gateway_mrgl(self, name, media_resource_group_list):
-        """
-
-        :param name:
-        :param media_resource_group_list:
-        :return:
-        """
-        resp = self.client.service.updateH323Gateway(
-                name=name,
-                mediaResourceListName=media_resource_group_list,
-        )
-
-        result = {
-            'success': False,
-            'msg': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['msg'] = 'H323 gateway successfully updated'
-            return result
-        elif resp[0] == 500 and '{0} was not found'.format(name) in resp[1].faultstring:
-            result['msg'] = 'H323 gateway: {0} not found'.format(name)
-            result['error'] = resp[1].faultstring
-            return result
-        elif resp[0] == 500 and '{0} was not found'.format(media_resource_group_list) in resp[1].faultstring:
-            result['msg'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['msg'] = 'H323 gateway could not be updated'
-            result['error'] = resp[1].faultstring
-            return result
+    def get_media_resource_group(self, media_resource_group):
+        return self.client.service.getMediaResourceGroup(name=media_resource_group)
 
     def add_media_resource_group(self,
                                  media_resource_group,
@@ -790,6 +848,9 @@ class AXL(object):
             result['msg'] = 'Media resource group could not be deleted'
             result['error'] = resp[1].faultstring
             return result
+
+    def get_media_resource_group_list(self, media_resource_group_list):
+        return self.client.service.getMediaResourceList(name=media_resource_group_list)
 
     def add_media_resource_group_list(self, media_resource_group_list, members=[]):
         """
@@ -1234,23 +1295,23 @@ class AXL(object):
 
         if lines:
             [resp['lines']['line'].append({
-                    'index': lines.index(i) + 1,
-                    'dirn': {
-                        'pattern': i[0],
-                        'routePartitionName': i[1]
-                    },
-                    'display': i[2],
-                    'displayAscii': i[3],
-                    'label': i[4],
-                    'e164Mask': i[5]
-                }) for i in lines]
+                'index': lines.index(i) + 1,
+                'dirn': {
+                    'pattern': i[0],
+                    'routePartitionName': i[1]
+                },
+                'display': i[2],
+                'displayAscii': i[3],
+                'label': i[4],
+                'e164Mask': i[5]
+            }) for i in lines]
 
         if em_service_url:
             resp['services']['service'].append([{
-                    'telecasterServiceName': 'Extension Mobility',
-                    'name': 'Extension Mobility',
-                    'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
-                }])
+                'telecasterServiceName': 'Extension Mobility',
+                'name': 'Extension Mobility',
+                'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
+            }])
 
         if em_url_button_enable:
             resp['services']['service'][0].update({'urlButtonIndex': em_url_button_index, 'urlLabel': em_url_label})

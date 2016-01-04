@@ -6,7 +6,8 @@ import unittest
 
 from axl.foley import AXL
 
-cucm = '10.10.11.14'
+# cucm = '10.10.11.14'
+cucm = '192.168.200.10'
 wsdl = 'file:///Users/brad/Documents/code/python/axl/axlsqltoolkit/schema/10.5/AXLAPI.wsdl'
 ucm = AXL('admin', 'asdfpoiu', wsdl, cucm)
 
@@ -97,6 +98,54 @@ class TestAXL(unittest.TestCase):
     def test_delete_non_existing_device_pool_fails(self):
         device_pool = 'dp_dont_exist'
         result = ucm.delete_device_pool(device_pool)
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    def test_update_device_pool_rg_mrgl_is_successful(self):
+        device_pool = 'test_dpu_dp'
+        media_resource_group_list = 'test_dpu_mrgl'
+        route_group = 'test_dpu_rg'
+        ucm.add_device_pool(device_pool)
+        ucm.add_media_resource_group_list(media_resource_group_list)
+        ucm.add_route_group(route_group)
+
+        result = ucm.update_device_pool_rg_mrgl(device_pool, route_group, media_resource_group_list)
+
+        # clean up
+        ucm.delete_device_pool(device_pool)
+        ucm.delete_route_group(route_group)
+        ucm.delete_media_resource_group_list(media_resource_group_list)
+
+        self.assertEqual(result['success'], True)
+
+    def test_update_device_pool_rg_mrgl_with_non_existent_device_pool_fails(self):
+        result = ucm.update_device_pool_rg_mrgl('rg_not_exists', 'blah', 'blah')
+
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    def test_update_device_pool_rg_mrgl_with_non_existent_route_group_fails(self):
+        device_pool = 'test_dpu_no_rg_dp'
+        ucm.add_device_pool(device_pool)
+
+        result = ucm.update_device_pool_rg_mrgl(device_pool, 'rg_not_exist', 'blah')
+
+        # clean up
+        ucm.delete_device_pool(device_pool)
+
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    def test_update_device_pool_rg_mrgl_with_non_existent_media_resource_group_list_fails(self):
+        device_pool = 'test_dpu_no_mrgl_dp'
+        route_group = 'test_dpu_no_mrgl_rg'
+
+        ucm.add_device_pool(device_pool)
+        ucm.add_route_group(route_group)
+
+        result = ucm.update_device_pool_rg_mrgl(device_pool, route_group, 'mrgl_not_exist')
+
+        # clean up
+        ucm.delete_route_group(route_group)
+        ucm.delete_device_pool(device_pool)
+
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
 
     # Conference Bridge
