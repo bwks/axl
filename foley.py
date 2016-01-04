@@ -544,7 +544,7 @@ class AXL(object):
             return result
 
     def add_h323_gateway(self,
-                         gateway_loopback,
+                         name,
                          description='',
                          device_pool='Default',
                          location='Hub_None',
@@ -575,7 +575,7 @@ class AXL(object):
                          clng_party_sub_trans_css=''):
         """
         Add H323 gateway
-        :param gateway_loopback:
+        :param name:
         :param description:
         :param device_pool:
         :param location:
@@ -607,7 +607,7 @@ class AXL(object):
         :return:
         """
         resp = self.client.service.addH323Gateway({
-            'name': gateway_loopback,
+            'name': name,
             'description': description,
             'product': product,
             'protocol': protocol,
@@ -649,7 +649,7 @@ class AXL(object):
             result['msg'] = 'H323 gateway successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'H323 gateway already exists'.format(gateway_loopback)
+            result['msg'] = 'H323 gateway already exists'.format(name)
             result['error'] = resp[1].faultstring
             return result
         else:
@@ -687,19 +687,40 @@ class AXL(object):
     def get_h323_gateway(self):
         return self.client.service.listH323Gateway({'name': '%'}, returnedTags={'name': '', 'sigDigits': ''})
 
-    def update_h323_gateway(self, gateway_loopback, media_resource_group_list):
+    def update_h323_gateway_mrgl(self, name, media_resource_group_list):
         """
 
-        :param gateway_loopback:
+        :param name:
         :param media_resource_group_list:
         :return:
         """
-        ug = self.client.service.updateH323Gateway(
-                name=gateway_loopback,
+        resp = self.client.service.updateH323Gateway(
+                name=name,
                 mediaResourceListName=media_resource_group_list,
         )
 
-        return ug
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'H323 gateway successfully updated'
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(name) in resp[1].faultstring:
+            result['msg'] = 'H323 gateway: {0} not found'.format(name)
+            result['error'] = resp[1].faultstring
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(media_resource_group_list) in resp[1].faultstring:
+            result['msg'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'H323 gateway could not be updated'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_media_resource_group(self,
                                  media_resource_group,
@@ -1154,6 +1175,7 @@ class AXL(object):
                   softkey_template='Standard User',
                   enable_em='true',
                   em_service_url=False,
+                  em_url_button_enable=False,
                   em_url_button_index='1',
                   em_url_label='Press here to logon',
                   ehook_enable=1):
@@ -1181,6 +1203,7 @@ class AXL(object):
         :param softkey_template:
         :param enable_em:
         :param em_service_url:
+        :param em_url_button_enable:
         :param em_url_button_index:
         :param em_url_label:
         :param ehook_enable:
@@ -1227,9 +1250,10 @@ class AXL(object):
                     'telecasterServiceName': 'Extension Mobility',
                     'name': 'Extension Mobility',
                     'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
-                    'urlButtonIndex': em_url_button_index,
-                    'urlLabel': em_url_label,
                 }])
+
+        if em_url_button_enable:
+            resp['services']['service'][0].update({'urlButtonIndex': em_url_button_index, 'urlLabel': em_url_label})
 
         result = {
             'success': False,

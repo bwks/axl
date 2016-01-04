@@ -169,6 +169,35 @@ class TestAXL(unittest.TestCase):
         result = ucm.delete_h323_gateway(h323_gateway)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
 
+    def test_update_h323_gateway_media_resource_group_list_is_successful(self):
+        h323_gateway = '1.1.1.1'
+        mrgl = 'test_h323_mrgl'
+        ucm.add_h323_gateway(h323_gateway)
+        ucm.add_media_resource_group_list(mrgl)
+        result = ucm.update_h323_gateway_mrgl(h323_gateway, mrgl)
+
+        # clean up
+        ucm.delete_h323_gateway(h323_gateway)
+        ucm.delete_media_resource_group_list(mrgl)
+
+        self.assertEqual(result['success'], True)
+
+    def test_update_h323_gateway_media_resource_group_list_with_non_existent_h323_gateway_fails(self):
+        result = ucm.update_h323_gateway_mrgl('h323_not_exists', 'blah')
+
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    def test_update_h323_gateway_media_resource_group_list_with_non_existent_media_resource_group_list_fails(self):
+        h323_gateway = '2.2.2.2'
+        ucm.add_h323_gateway(h323_gateway)
+
+        result = ucm.update_h323_gateway_mrgl(h323_gateway, 'mrgl_not_exist')
+
+        # clean up
+        ucm.delete_h323_gateway(h323_gateway)
+
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
     # Media resource group
     def test_add_media_resource_group_and_delete_media_resource_group_is_successful(self):
         media_resource_group = 'test_mrg'
