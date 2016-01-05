@@ -17,7 +17,7 @@ Installed environment:
 
 ###Installation:
 Clone repository
-```
+```bash
 BradsMBP# mkdir test
 BradsMBP# cd test
 BradsMBP# git clone https://github.com/bobthebutcher/axl.git
