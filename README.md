@@ -1,5 +1,5 @@
 ##Python module for configuring Cisco UCM with AXL SOAP API
-###Dependencies:
+###Dependencies
  suds-jurko
  - https://bitbucket.org/jurko/suds
 
@@ -15,7 +15,7 @@ Installed environment:
  - Python 3
  - suds-jurko
 
-###Installation:
+###Installation
 Clone repository
 ```bash
 BradsMBP# mkdir test
@@ -31,7 +31,7 @@ Checking connectivity... done.
 BradsMBP#
 ```
 
-###Example Usage:
+###Example Usage
 Update your path
 ```python
 import sys
@@ -80,21 +80,11 @@ ucm.add_device_pool(device_pool='test_dev_pool', region='test_region', location=
 ```
 
 ####Deleting a region
+
+Just like in the UCM web interface all dependencies must be removed before an object can be deleted
 ```python
 ucm.delete_region(region='test_region')
-```
-
-Just like in the UCM web interface all dependencies must be removed before and object can be deleted
-```python
 {'success': False,
  'error': Key value for constraint (informix.pk_region_pkid) is still being referenced.,
  'msg': 'Region could not be deleted'}
-```
-
-Duplicate value error
-```python
-ucm.add_location(location='test_location')
-{'success': False,
- 'error': Could not insert new row - duplicate value in a UNIQUE INDEX column (Unique Index:).,
- 'msg': 'Location already exists'}
 ```
