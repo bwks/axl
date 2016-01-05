@@ -1,8 +1,18 @@
-##Python module for configuring cisco cucm with axl soap api.
+##Python module for configuring Cisco UCM with AXL SOAP API
 ###Dependencies:
  suds-jurko
  - https://bitbucket.org/jurko/suds
+
+###Links
  - http://www.imdb.com/character/ch0005280/ 
+ - developer.cisco.com
+
+###Testing Environment
+AXL configuration testing has been completed against CUCM v10.5
+Installed environment:
+ - Centos 7
+ - Python 3
+ - suds-jurko
 
 ###Installation:
 Clone repository
@@ -30,4 +40,32 @@ sys.path.append('/path/to/repo')
 Import AXL
 ```
 from axl.foley import AXL
+```
+
+Create connection to CUCM
+The user will need the appropriate privileges to access the API
+```
+cucm = '10.10.11.14'
+wsdl = 'file:///path/to/wsdl/schema/10.5/AXLAPI.wsdl'
+ucm = AXL('username', 'password', wsdl, cucm)
+```
+
+Configure a location
+```
+ucm.add_location('test_location')
+{'success': True, 'error': '', 'msg': 'Location successfully added'}
+```
+Methods return result as a dictionary of values
+{
+'success': True/False, 
+'error': 'AXL Error', 
+'msg': 'Error Message'
+}
+
+```
+ucm.add_location('test_location')
+{'success': False,
+ 'error': Could not insert new row - duplicate value in a UNIQUE INDEX column (Unique Index:).,
+ 'msg': 'Location already exists'}
+
 ```
