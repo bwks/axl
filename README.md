@@ -5,10 +5,11 @@
 
 ###Links
  - http://www.imdb.com/character/ch0005280/ 
- - developer.cisco.com
+ - https://developer.cisco.com/site/axl/
 
 ###Testing Environment
 AXL configuration testing has been completed against CUCM v10.5
+
 Installed environment:
  - Centos 7
  - Python 3
@@ -32,40 +33,44 @@ BradsMBP#
 
 ###Example Usage:
 Update your path
-```
+```python
 import sys
 sys.path.append('/path/to/repo')
 ```
 
 Import AXL
-```
+```python
 from axl.foley import AXL
 ```
 
 Create connection to CUCM
+
 The user will need the appropriate privileges to access the API
-```
+```python
 cucm = '10.10.11.14'
 wsdl = 'file:///path/to/wsdl/schema/10.5/AXLAPI.wsdl'
 ucm = AXL('username', 'password', wsdl, cucm)
 ```
 
 Configure a location
-```
+```python
 ucm.add_location('test_location')
 {'success': True, 'error': '', 'msg': 'Location successfully added'}
 ```
+
 Methods return result as a dictionary of values
+```python
 {
 'success': True/False, 
 'error': 'AXL Error', 
 'msg': 'Error Message'
 }
-
 ```
+
+Duplicate value error
+```python
 ucm.add_location('test_location')
 {'success': False,
  'error': Could not insert new row - duplicate value in a UNIQUE INDEX column (Unique Index:).,
  'msg': 'Location already exists'}
-
 ```
