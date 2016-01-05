@@ -149,6 +149,9 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_region(self, region):
+        return self.client.service.getRegion(name=region)
+
     def add_region(self, region):
         """
         Add a region
@@ -178,7 +181,7 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
-    def update_region(self, region, moh_region):
+    def update_region(self, region, moh_region=''):
         """
         Update region and assign region to all other regions
         :param region:
@@ -199,8 +202,9 @@ class AXL(object):
             if i == region:
                 region_list.append({
                     'regionName': i,
-                    'bandwidth': '256 kbps (L16, AAC-LD)',
+                    'bandwidth': '256 kbps',
                     'videoBandwidth': '-1',
+                    'immersiveVideoBandwidth': '-1',
                     'lossyNetwork': 'Use System Default',
                 })
 
@@ -208,17 +212,19 @@ class AXL(object):
             elif i == moh_region:
                 region_list.append({
                     'regionName': i,
-                    'bandwidth': '64 kbps (G.722, G.711)',
+                    'bandwidth': '64 kbps',
                     'videoBandwidth': '-1',
+                    'immersiveVideoBandwidth': '-1',
                     'lossyNetwork': 'Use System Default',
                 })
 
-            # All else G.729
+            # All else G.711
             else:
                 region_list.append({
                     'regionName': i,
-                    'bandwidth': '8 kbps (G.729)',
+                    'bandwidth': '64 kbps',
                     'videoBandwidth': '-1',
+                    'immersiveVideoBandwidth': '-1',
                     'lossyNetwork': 'Use System Default',
                 })
 
@@ -237,10 +243,6 @@ class AXL(object):
             return result
         elif resp[0] == 500 and '{0} was not found'.format(region) in resp[1].faultstring:
             result['msg'] = 'Region: {0} not found'.format(region)
-            result['error'] = resp[1].faultstring
-            return result
-        elif resp[0] == 500 and '{0} was not found'.format(moh_region) in resp[1].faultstring:
-            result['msg'] = 'MOH region: {0} not found'.format(moh_region)
             result['error'] = resp[1].faultstring
             return result
         else:

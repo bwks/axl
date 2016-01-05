@@ -6,8 +6,8 @@ import unittest
 
 from axl.foley import AXL
 
-# cucm = '10.10.11.14'
-cucm = '192.168.200.10'
+cucm = '10.10.11.14'
+# cucm = '192.168.200.10'
 wsdl = 'file:///Users/brad/Documents/code/python/axl/axlsqltoolkit/schema/10.5/AXLAPI.wsdl'
 ucm = AXL('admin', 'asdfpoiu', wsdl, cucm)
 
@@ -55,6 +55,27 @@ class TestAXL(unittest.TestCase):
         region = 'region_not_exist'
         result = ucm.delete_region(region)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    def test_update_region_with_non_existent_region_fails(self):
+        result = ucm.update_region('reg_not_exists', 'blah')
+
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    def test_update_region_is_successful(self):
+        region = 'test_upr_reg'
+        moh_region = 'test_upr_moh'
+        other_region = 'test_upr_oth'
+        ucm.add_region(region)
+        ucm.add_region(moh_region)
+        ucm.add_region(other_region)
+        result = ucm.update_region(region, moh_region)
+
+        # clean up
+        #ucm.delete_region(region)
+        #ucm.delete_region(moh_region)
+        #ucm.delete_region(other_region)
+
+        self.assertEqual(result['success'], True)
 
     # SRST
     def test_add_srst_and_delete_srst_is_successful(self):
