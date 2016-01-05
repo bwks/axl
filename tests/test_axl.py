@@ -71,9 +71,9 @@ class TestAXL(unittest.TestCase):
         result = ucm.update_region(region, moh_region)
 
         # clean up
-        #ucm.delete_region(region)
-        #ucm.delete_region(moh_region)
-        #ucm.delete_region(other_region)
+        ucm.delete_region(region)
+        ucm.delete_region(moh_region)
+        ucm.delete_region(other_region)
 
         self.assertEqual(result['success'], True)
 
