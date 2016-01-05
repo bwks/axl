@@ -81,7 +81,7 @@ ucm.add_device_pool(device_pool='test_dev_pool', region='test_region', location=
 
 ####Deleting a region
 
-Just like in the UCM web interface all dependencies must be removed before an object can be deleted
+Like in the UCM web interface all dependencies must be removed before an object can be deleted
 ```python
 ucm.delete_region(region='test_region')
 {'success': False,
