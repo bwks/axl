@@ -52,9 +52,9 @@ wsdl = 'file:///path/to/wsdl/schema/10.5/AXLAPI.wsdl'
 ucm = AXL('username', 'password', wsdl, cucm)
 ```
 
-####Configure a location
+####Adding a location
 ```python
-ucm.add_location('test_location')
+ucm.add_location(location='test_location')
 {'success': True, 'error': '', 'msg': 'Location successfully added'}
 ```
 
@@ -67,36 +67,34 @@ Methods return result as a dictionary of values
 }
 ```
 
-Duplicate value error
+####Adding a region
 ```python
-ucm.add_location('test_location')
-{'success': False,
- 'error': Could not insert new row - duplicate value in a UNIQUE INDEX column (Unique Index:).,
- 'msg': 'Location already exists'}
+ucm.add_region(region='test_region')
+{'success': True, 'error': '', 'msg': 'Region successfully added'}
 ```
 
-####Configuring a region
+####Adding a device pool
 ```python
-ucm.add_region('test_region')
-{'success': True, 'error': '', 'msg': 'Region successfully added'}
+ucm.add_device_pool(device_pool='test_dev_pool', region='test_region', location='test_location')
+{'success': True, 'error': '', 'msg': 'Device pool successfully added'}
 ```
 
 ####Deleting a region
 ```python
-ucm.delete_region('test_region')
-{'success': True, 'error': '', 'msg': 'Region successfully deleted'}
+ucm.delete_region(region='test_region')
 ```
 
 Just like in the UCM web interface all dependencies must be removed before and object can be deleted
 ```python
-ucm.add_h323_gateway('test_h323_gw')
-{'success': True, 'error': '', 'msg': 'H323 gateway successfully added'}
-ucm.add_media_resource_group_list('test_mrgl')
-{'success': True, 'error': '', 'msg': 'Media resource group list successfully added'}
-ucm.update_h323_gateway_mrgl('test_h323_gw', 'test_mrgl')
-{'success': True, 'error': '', 'msg': 'H323 gateway successfully updated'}
-ucm.delete_media_resource_group_list('test_mrgl')
 {'success': False,
- 'error': Key value for constraint (informix.pk_mediaresourcelist_pkid) is still being referenced.,
- 'msg': 'Media resource group list could not be deleted'}
+ 'error': Key value for constraint (informix.pk_region_pkid) is still being referenced.,
+ 'msg': 'Region could not be deleted'}
+```
+
+Duplicate value error
+```python
+ucm.add_location(location='test_location')
+{'success': False,
+ 'error': Could not insert new row - duplicate value in a UNIQUE INDEX column (Unique Index:).,
+ 'msg': 'Location already exists'}
 ```
