@@ -339,11 +339,70 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
-    def get_device_pools(self):
-        return self.client.service.listDevicePool({'name': '%'}, returnedTags={'name': '', 'localRouteGroupName': ''})
+    def get_device_pools(self, mini=True):
+        """
+        Get a dictionary of device pools
+        :param mini: return a list of tuples of device pool info
+        :return: a list of device pools
+        """
+        if mini:
+            resp = self.client.service.listDevicePool(
+                    {'name': '%'}, returnedTags={
+                        'name': '',
+                        'dateTimeSettingName': '',
+                        'callManagerGroupName': '',
+                        'mediaResourceListName': '',
+                        'regionName': '',
+                        'srstName': '',
+                        # 'localRouteGroup': [0],
+                    })[1]['return']['devicePool']
+
+            return [(i['name'],
+                     i['dateTimeSettingName']['value'],
+                     i['callManagerGroupName']['value'],
+                     i['regionName']['value'],
+                     i['srstName']['value'],
+                     # i['localRouteGroup'][0]['value'],
+                     ) for i in resp]
+        else:
+
+            return self.client.service.listDevicePool(
+                    {'name': '%'}, returnedTags={
+                        'name': '',
+                        'dateTimeSettingName': '',
+                        'callManagerGroupName': '',
+                        'mediaResourceListName': '',
+                        'regionName': '',
+                        'srstName': '',
+                        # 'localRouteGroup': '',
+                    })[1]['return']['devicePool']
 
     def get_device_pool(self, device_pool):
-        return self.client.service.getDevicePool(name=device_pool)
+        """
+        Get device pool parameters
+        :param device_pool: device pool name
+        :return: result dictionary
+        """
+        resp = self.client.service.getDevicePool(name=device_pool)
+
+        result = {
+            'success': False,
+            'result': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['result'] = resp[1]['return']['devicePool']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['result'] = 'Device pool: {0} not found'.format(device_pool)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['result'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_device_pool(self,
                         device_pool,
