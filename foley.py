@@ -1718,8 +1718,21 @@ class AXL(object):
         :param primary_extension: Primary extension, must be a number from the device profile
         :return: result dictionary
         """
-        uuid = self.client.service.getDeviceProfile(
-                name=device_profile)[1]['return']['deviceProfile']['_uuid'][1:-1]
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        resp = self.client.service.getDeviceProfile(name=device_profile)
+
+        if resp[0] == 500 and '{0} was not found'.format(device_profile) in resp[1].faultstring:
+            result['response'] = 'Device profile: {0} not found'.format(device_profile)
+            result['error'] = resp[1].faultstring
+            return result
+
+        else:
+            uuid = resp[1]['return']['deviceProfile']['_uuid'][1:-1]
 
         resp = self.client.service.updateUser(
                 userid=user_id,
@@ -1730,22 +1743,12 @@ class AXL(object):
                 associatedGroups={'userGroup': {'name': 'Standard CCM End Users'}}
         )
 
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
         if resp[0] == 200:
             result['success'] = True
             result['response'] = 'User successfully updated'
             return result
         elif resp[0] == 500 and '{0} was not found'.format(user_id) in resp[1].faultstring:
             result['response'] = 'User ID: {0} not found'.format(user_id)
-            result['error'] = resp[1].faultstring
-            return result
-        elif resp[0] == 500 and '{0} was not found'.format(device_profile) in resp[1].faultstring:
-            result['response'] = 'Device profile: {0} not found'.format(device_profile)
             result['error'] = resp[1].faultstring
             return result
         elif resp[0] == 500 and '{0} was not found'.format(default_profile) in resp[1].faultstring:
