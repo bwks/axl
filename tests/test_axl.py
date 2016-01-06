@@ -408,7 +408,7 @@ class TestAXL(unittest.TestCase):
 
         self.assertEqual(add_phone['success'], True) and self.assertEqual(del_phone['success'], True)
 
-    def test_add_phone_fails(self):
+    def test_add_duplicate_phone_fails(self):
             phone = 'sepaaaabbbbdddd'
             ucm.add_phone(phone)
             duplicate = ucm.add_phone(phone)
@@ -422,3 +422,44 @@ class TestAXL(unittest.TestCase):
         phone = 'sepaaaabbbbeeee'
         result = ucm.delete_phone(phone)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    # Device Profiles
+    def test_add_device_profile_and_delete_device_profile_is_successful(self):
+        profile = 'test_profile'
+        add_profile = ucm.add_device_profile(profile)
+        del_profile = ucm.delete_device_profile(profile)
+
+        self.assertEqual(add_profile['success'], True) and self.assertEqual(del_profile['success'], True)
+
+    def test_add_duplicate_device_profile_fails(self):
+        profile = 'test_dup_profile'
+        ucm.add_device_profile(profile)
+        duplicate = ucm.add_device_profile(profile)
+
+        # clean up
+        ucm.delete_device_profile(profile)
+
+        self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+
+    def test_delete_non_existing_device_profile_fails(self):
+        result = ucm.delete_device_profile('profile-not-exist')
+        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    def test_get_device_profile_returns_successful_and_device_profile_details(self):
+        profile = 'test_get_profile'
+        ucm.add_device_profile(profile)
+        result = ucm.get_device_profile(profile)
+
+        # clean up
+        ucm.delete_device_profile(profile)
+
+        self.assertEqual(result['success'], True) and self.assertEqual(result['result']['name'], profile)
+
+    def test_get_device_profiles_returns_all_device_profiles_details(self):
+        result = ucm.get_device_profiles(mini=False)
+        self.assertIsInstance(result, list) and len(list) > 1 and self.assertIsInstance(result[0], dict)
+
+    def test_get_device_profiles_mini_returns_all_device_profiles_details_as_list_of_tuples(self):
+        result = ucm.get_device_profiles(mini=True)
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+

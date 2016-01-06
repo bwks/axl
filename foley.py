@@ -1,7 +1,7 @@
 """
 Class to interface with cisco ucm axl api.
 Author: Brad Searle
-Version: 0.2
+Version: 0.2.1
 Dependencies:
  - suds-jurko: https://bitbucket.org/jurko/suds
 
@@ -1436,7 +1436,7 @@ class AXL(object):
 
     def delete_phone(self, phone):
         """
-        Add a phone
+        Delete a phone
         :param phone: The name of the phone to delete
         :return: result dictionary
         """
@@ -1458,5 +1458,159 @@ class AXL(object):
             return result
         else:
             result['msg'] = 'Phone could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def get_device_profiles(self, mini=True):
+        """
+        Get device profile details
+        :param mini: return a list of tuples of device profile details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listDeviceProfile(
+                {'name': '%'}, returnedTags={
+                    'name': '',
+                    'product': '',
+                    'protocol': '',
+                    'phoneTemplateName': '',
+                })[1]['return']['deviceProfile']
+        if mini:
+            return [(i['name'],
+                     i['product'],
+                     i['protocol'],
+                     i['phoneTemplateName']['value'],
+                     ) for i in resp]
+        else:
+            return resp
+
+    def get_device_profile(self, profile):
+        """
+        Get device profile parameters
+        :param profile: profile name
+        :return: result dictionary
+        """
+        resp = self.client.service.getDeviceProfile(name=profile)
+
+        result = {
+            'success': False,
+            'result': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['result'] = resp[1]['return']['deviceProfile']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['result'] = 'Profile: {0} not found'.format(profile)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['result'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def add_device_profile(self,
+                           profile,
+                           description='',
+                           product='Cisco 7962',
+                           phone_template='Standard 7962G SCCP',
+                           dev_class='Device Profile',
+                           protocol='SCCP',
+                           softkey_template='Standard User',
+                           lines=[],):
+
+        """
+        Add A Device profile
+        lines takes a list of Tuples with properties for each line EG:
+
+                                               display                           external
+            DN     partition    display        ascii          label               mask
+        [('77777', 'LINE_PT', 'Jim Smith', 'Jim Smith', 'Jim Smith - 77777', '0294127777')]
+        :param profile:
+        :param description:
+        :param product:
+        :param phone_template:
+        :param lines:
+        :param dev_class:
+        :param protocol:
+        :param softkey_template:
+        :return:
+        """
+
+        req = {
+            'name': profile,
+            'description': description,
+            'product': product,
+            'class': dev_class,
+            'protocol': protocol,
+            'softkeyTemplateName': softkey_template,
+            'phoneTemplateName': phone_template,
+            'lines': {'line': []},
+            'services': {'service': [{
+                'telecasterServiceName': 'Extension Mobility',
+                'name': 'Extension Mobility',
+                'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
+            }]},
+        }
+
+        if lines:
+            [req['lines']['line'].append({
+                'index': lines.index(i) + 1,
+                'dirn': {
+                    'pattern': i[0],
+                    'routePartitionName': i[1]
+                },
+                'display': i[2],
+                'displayAscii': i[3],
+                'label': i[4],
+                'e164Mask': i[5]
+            }) for i in lines]
+
+        resp = self.client.service.addDeviceProfile(req)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Device profile successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'Device profile already exists'.format(profile)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Device profile could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_device_profile(self, profile):
+        """
+        Delete a device profile
+        :param profile: The name of the device profile to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeDeviceProfile(name=profile)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'Device profile successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'Device profile: {0} not found'.format(profile)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'Device profile could not be deleted'
             result['error'] = resp[1].faultstring
             return result
