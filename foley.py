@@ -65,6 +65,55 @@ class AXL(object):
                              plugins=[ImportDoctor(imp)],
                              transport=t)
 
+    def get_locations(self, mini=True):
+        """
+        Get location details
+        :param mini: return a list of tuples of location details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listLocation(
+                {'name': '%'}, returnedTags={
+                    'name': '',
+                    'withinAudioBandwidth': '',
+                    'withinVideoBandwidth': '',
+                    'withinImmersiveKbits': '',
+                })[1]['return']['location']
+        if mini:
+            return [(i['name'],
+                     i['withinAudioBandwidth'],
+                     i['withinVideoBandwidth'],
+                     i['withinImmersiveKbits'],
+                     ) for i in resp]
+        else:
+            return resp
+
+    def get_location(self, location):
+        """
+        Get device pool parameters
+        :param location: location name
+        :return: result dictionary
+        """
+        resp = self.client.service.getLocation(name=location)
+
+        result = {
+            'success': False,
+            'result': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['result'] = resp[1]['return']['location']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['result'] = 'Location: {0} not found'.format(location)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['result'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
     def add_location(self,
                      location,
                      kbits=512,
@@ -343,20 +392,19 @@ class AXL(object):
         """
         Get a dictionary of device pools
         :param mini: return a list of tuples of device pool info
-        :return: a list of device pools
+        :return: a list of dictionary's of device pools information
         """
+        resp = self.client.service.listDevicePool(
+                {'name': '%'}, returnedTags={
+                    'name': '',
+                    'dateTimeSettingName': '',
+                    'callManagerGroupName': '',
+                    'mediaResourceListName': '',
+                    'regionName': '',
+                    'srstName': '',
+                    # 'localRouteGroup': [0],
+                })[1]['return']['devicePool']
         if mini:
-            resp = self.client.service.listDevicePool(
-                    {'name': '%'}, returnedTags={
-                        'name': '',
-                        'dateTimeSettingName': '',
-                        'callManagerGroupName': '',
-                        'mediaResourceListName': '',
-                        'regionName': '',
-                        'srstName': '',
-                        # 'localRouteGroup': [0],
-                    })[1]['return']['devicePool']
-
             return [(i['name'],
                      i['dateTimeSettingName']['value'],
                      i['callManagerGroupName']['value'],
@@ -365,17 +413,7 @@ class AXL(object):
                      # i['localRouteGroup'][0]['value'],
                      ) for i in resp]
         else:
-
-            return self.client.service.listDevicePool(
-                    {'name': '%'}, returnedTags={
-                        'name': '',
-                        'dateTimeSettingName': '',
-                        'callManagerGroupName': '',
-                        'mediaResourceListName': '',
-                        'regionName': '',
-                        'srstName': '',
-                        # 'localRouteGroup': '',
-                    })[1]['return']['devicePool']
+            return resp
 
     def get_device_pool(self, device_pool):
         """

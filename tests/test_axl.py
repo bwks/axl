@@ -6,8 +6,8 @@ import unittest
 
 from axl.foley import AXL
 
-cucm = '10.10.11.14'
-# cucm = '192.168.200.10'
+# cucm = '10.10.11.14'
+cucm = '192.168.200.10'
 wsdl = 'file:///Users/brad/Documents/code/python/axl/axlsqltoolkit/schema/10.5/AXLAPI.wsdl'
 ucm = AXL('admin', 'asdfpoiu', wsdl, cucm)
 
@@ -34,6 +34,19 @@ class TestAXL(unittest.TestCase):
         location = 'location_not_exist'
         result = ucm.delete_location(location)
         self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+
+    def test_get_location_returns_successful_and_location_details(self):
+        location = 'Hub_None'
+        result = ucm.get_location(location)
+        self.assertEqual(result['success'], True) and self.assertEqual(result['result']['name'], location)
+
+    def test_get_locations_returns_all_location_details(self):
+        result = ucm.get_locations(mini=False)
+        self.assertIsInstance(result, list) and len(list) > 1 and self.assertIsInstance(result[0], dict)
+
+    def test_get_locations_mini_returns_all_location_details_as_list_of_tuples(self):
+        result = ucm.get_locations(mini=True)
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
 
     # Region
     def test_add_region_and_delete_region_is_successful(self):
