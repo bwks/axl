@@ -463,3 +463,17 @@ class TestAXL(unittest.TestCase):
         result = ucm.get_device_profiles(mini=True)
         self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
 
+    # Users
+    def test_get_users_returns_all_users_details(self):
+        result = ucm.get_device_profiles(mini=False)
+        self.assertIsInstance(result, list) and len(list) > 1 and self.assertIsInstance(result[0], dict)
+
+    def test_get_user_returns_successful_and_user_details(self):
+        user = 'test_get_user'
+        ucm.add_user(user, 'last_name')
+        result = ucm.get_user(user)
+
+        # clean up
+        ucm.delete_user(user)
+
+        self.assertEqual(result['success'], True) and self.assertEqual(result['result']['name'], user)

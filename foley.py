@@ -1370,7 +1370,7 @@ class AXL(object):
         :return:
         """
 
-        resp = self.client.service.addPhone({
+        req = {
             'name': phone,
             'description': description,
             'product': product,
@@ -1390,10 +1390,10 @@ class AXL(object):
             'vendorConfig': [{
                 'ehookEnable': ehook_enable
             }]
-        })
+        }
 
         if lines:
-            [resp['lines']['line'].append({
+            [req['lines']['line'].append({
                 'index': lines.index(i) + 1,
                 'dirn': {
                     'pattern': i[0],
@@ -1406,14 +1406,16 @@ class AXL(object):
             }) for i in lines]
 
         if em_service_url:
-            resp['services']['service'].append([{
+            req['services']['service'].append([{
                 'telecasterServiceName': 'Extension Mobility',
                 'name': 'Extension Mobility',
                 'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
             }])
 
         if em_url_button_enable:
-            resp['services']['service'][0].update({'urlButtonIndex': em_url_button_index, 'urlLabel': em_url_label})
+            req['services']['service'][0].update({'urlButtonIndex': em_url_button_index, 'urlLabel': em_url_label})
+
+        resp = self.client.service.addPhone(req)
 
         result = {
             'success': False,
@@ -1518,10 +1520,10 @@ class AXL(object):
                            dev_class='Device Profile',
                            protocol='SCCP',
                            softkey_template='Standard User',
-                           lines=[],):
+                           lines=[], ):
 
         """
-        Add A Device profile
+        Add A Device profile for use with extension mobility
         lines takes a list of Tuples with properties for each line EG:
 
                                                display                           external
@@ -1612,5 +1614,176 @@ class AXL(object):
             return result
         else:
             result['msg'] = 'Device profile could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def get_users(self, mini=True):
+        """
+        Get users details
+        :param mini: return a list of tuples of user details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listUser(
+                {'userid': '%'}, returnedTags={
+                    'userid': '',
+                    'firstName': '',
+                    'lastName': '',
+                })[1]['return']['user']
+        if mini:
+            return [(i['userid'],
+                     i['firstName'],
+                     i['lastName'],
+                     ) for i in resp]
+        else:
+            return resp
+
+    def get_user(self, user_id):
+        """
+        Get user parameters
+        :param user_id: profile name
+        :return: result dictionary
+        """
+        resp = self.client.service.getUser(userid=user_id)
+
+        result = {
+            'success': False,
+            'result': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['result'] = resp[1]['return']['user']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['result'] = 'User: {0} not found'.format(user_id)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['result'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def add_user(self,
+                 user_id,
+                 last_name,
+                 first_name='',
+                 user_profile='Standard (Factory Default) User Profile'):
+        """
+        Add a user
+        :param user_id: User ID of the user to add
+        :param first_name: First name of the user to add
+        :param last_name: Last name of the user to add
+        :param user_profile: User profile template
+        :return: result dictionary
+        """
+        resp = self.client.service.addUser({
+            'userid': user_id,
+            'firstName': first_name,
+            'lastName': last_name,
+            'userProfile': user_profile,
+        })
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'User successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['msg'] = 'User already exists'.format(user_id)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'User could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def update_user_em(self,
+                       user_id,
+                       device_profile,
+                       default_profile,
+                       subscribe_css,
+                       primary_extension):
+        """
+        Update end user for extension mobility
+        :param user_id:
+        :param device_profile:
+        :param default_profile:
+        :param subscribe_css:
+        :param primary_extension:
+        :return:
+        """
+        uuid = self.client.service.getDeviceProfile(
+                name=device_profile)[1]['return']['deviceProfile']['_uuid'][1:-1]
+
+        resp = self.client.service.updateUser(
+                userid=user_id,
+                phoneProfiles={'profileName': {'_uuid': uuid}},
+                defaultProfile=default_profile,
+                subscribeCallingSearchSpaceName=subscribe_css,
+                primaryExtension={'pattern': primary_extension},
+                associatedGroups={'userGroup': {'name': 'Standard CCM End Users'}}
+        )
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'User successfully updated'
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(user_id) in resp[1].faultstring:
+            result['msg'] = 'User ID: {0} not found'.format(user_id)
+            result['error'] = resp[1].faultstring
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(device_profile) in resp[1].faultstring:
+            result['msg'] = 'Device profile: {0} not found'.format(device_profile)
+            result['error'] = resp[1].faultstring
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(default_profile) in resp[1].faultstring:
+            result['msg'] = 'Default profile: {0} not found'.format(default_profile)
+            result['error'] = resp[1].faultstring
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(subscribe_css) in resp[1].faultstring:
+            result['msg'] = 'Subscribe CSS: {0} not found'.format(subscribe_css)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'User could not be updated'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_user(self, user_id):
+        """
+        Delete a user
+        :param user_id: The name of the user to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeUser(userid=user_id)
+
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'User successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['msg'] = 'User: {0} not found'.format(user_id)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'User could not be deleted'
             result['error'] = resp[1].faultstring
             return result
