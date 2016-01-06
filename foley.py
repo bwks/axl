@@ -1520,7 +1520,7 @@ class AXL(object):
                            dev_class='Device Profile',
                            protocol='SCCP',
                            softkey_template='Standard User',
-                           lines=[], ):
+                           lines=[]):
 
         """
         Add A Device profile for use with extension mobility
@@ -1715,7 +1715,7 @@ class AXL(object):
         :param device_profile: Device profile name
         :param default_profile: Default profile name
         :param subscribe_css: Subscribe CSS
-        :param primary_extension: Primary extension, must be a number from the profile
+        :param primary_extension: Primary extension, must be a number from the device profile
         :return: result dictionary
         """
         uuid = self.client.service.getDeviceProfile(
@@ -1754,6 +1754,59 @@ class AXL(object):
             return result
         elif resp[0] == 500 and '{0} was not found'.format(subscribe_css) in resp[1].faultstring:
             result['msg'] = 'Subscribe CSS: {0} not found'.format(subscribe_css)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['msg'] = 'User could not be updated'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def update_user_credentials(self,
+                                user_id,
+                                password='',
+                                pin=''):
+        """
+        Update end user for credentials
+        :param user_id: User ID
+        :param password: Web interface password
+        :param pin: Extension mobility PIN
+        :return: result dictionary
+        """
+        result = {
+            'success': False,
+            'msg': '',
+            'error': '',
+        }
+
+        if password != '' and pin != '':
+            resp = self.client.service.updateUser(
+                    userid=user_id,
+                    password=password,
+                    pin=pin,
+            )
+
+        elif password != '':
+            resp = self.client.service.updateUser(
+                    userid=user_id,
+                    password=password,
+            )
+
+        elif pin != '':
+            resp = self.client.service.updateUser(
+                    userid=user_id,
+                    pin=pin,
+            )
+        else:
+            result['msg'] = 'User could not be updated'
+            result['error'] = 'Password and/or Pin are required'
+            return result
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['msg'] = 'User successfully updated'
+            return result
+        elif resp[0] == 500 and '{0} was not found'.format(user_id) in resp[1].faultstring:
+            result['msg'] = 'User ID: {0} not found'.format(user_id)
             result['error'] = resp[1].faultstring
             return result
         else:
