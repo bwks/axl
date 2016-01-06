@@ -1,7 +1,7 @@
 """
 Class to interface with cisco ucm axl api.
 Author: Brad Searle
-Version: 0.2.1
+Version: 0.2.2
 Dependencies:
  - suds-jurko: https://bitbucket.org/jurko/suds
 
@@ -1711,12 +1711,12 @@ class AXL(object):
                        primary_extension):
         """
         Update end user for extension mobility
-        :param user_id:
-        :param device_profile:
-        :param default_profile:
-        :param subscribe_css:
-        :param primary_extension:
-        :return:
+        :param user_id: User ID
+        :param device_profile: Device profile name
+        :param default_profile: Default profile name
+        :param subscribe_css: Subscribe CSS
+        :param primary_extension: Primary extension, must be a number from the profile
+        :return: result dictionary
         """
         uuid = self.client.service.getDeviceProfile(
                 name=device_profile)[1]['return']['deviceProfile']['_uuid'][1:-1]
