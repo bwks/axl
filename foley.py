@@ -1,7 +1,7 @@
 """
 Class to interface with cisco ucm axl api.
 Author: Brad Searle
-Version: 0.2.2
+Version: 0.2.3
 Dependencies:
  - suds-jurko: https://bitbucket.org/jurko/suds
 
@@ -97,20 +97,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'result': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['result'] = resp[1]['return']['location']
+            result['response'] = resp[1]['return']['location']
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['result'] = 'Location: {0} not found'.format(location)
+            result['response'] = 'Location: {0} not found'.format(location)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['result'] = 'Unknown error'
+            result['response'] = 'Unknown error'
             result['error'] = resp[1].faultstring
             return result
 
@@ -154,20 +154,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Location successfully added'
+            result['response'] = 'Location successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Location already exists'.format(location)
+            result['response'] = 'Location already exists'.format(location)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Location could not be added'
+            result['response'] = 'Location could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -181,20 +181,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Location successfully deleted'
+            result['response'] = 'Location successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'Location: {0} not found'.format(location)
+            result['response'] = 'Location: {0} not found'.format(location)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Location could not be deleted'
+            result['response'] = 'Location could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -213,20 +213,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Region successfully added'
+            result['response'] = 'Region successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Region already exists'.format(region)
+            result['response'] = 'Region already exists'.format(region)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Region could not be added'
+            result['response'] = 'Region could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -282,20 +282,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Region successfully updated'
+            result['response'] = 'Region successfully updated'
             return result
         elif resp[0] == 500 and '{0} was not found'.format(region) in resp[1].faultstring:
-            result['msg'] = 'Region: {0} not found'.format(region)
+            result['response'] = 'Region: {0} not found'.format(region)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Region could not be updated'
+            result['response'] = 'Region could not be updated'
             result['error'] = resp[1].faultstring
             return result
 
@@ -309,20 +309,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Region successfully deleted'
+            result['response'] = 'Region successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'Region: {0} not found'.format(region)
+            result['response'] = 'Region: {0} not found'.format(region)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Region could not be deleted'
+            result['response'] = 'Region could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -344,20 +344,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'SRST successfully added'
+            result['response'] = 'SRST successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'SRST already exists'.format(srst)
+            result['response'] = 'SRST already exists'.format(srst)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'SRST could not be added'
+            result['response'] = 'SRST could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -371,20 +371,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'SRST successfully deleted'
+            result['response'] = 'SRST successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'SRST: {0} not found'.format(srst)
+            result['response'] = 'SRST: {0} not found'.format(srst)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'SRST could not be deleted'
+            result['response'] = 'SRST could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -425,20 +425,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'result': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['result'] = resp[1]['return']['devicePool']
+            result['response'] = resp[1]['return']['devicePool']
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['result'] = 'Device pool: {0} not found'.format(device_pool)
+            result['response'] = 'Device pool: {0} not found'.format(device_pool)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['result'] = 'Unknown error'
+            result['response'] = 'Unknown error'
             result['error'] = resp[1].faultstring
             return result
 
@@ -474,20 +474,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Device pool successfully added'
+            result['response'] = 'Device pool successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Device pool already exists'.format(srst)
+            result['response'] = 'Device pool already exists'.format(srst)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Device pool could not be added'
+            result['response'] = 'Device pool could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -507,28 +507,28 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Device pool successfully updated'
+            result['response'] = 'Device pool successfully updated'
             return result
         elif resp[0] == 500 and '{0} was not found'.format(device_pool) in resp[1].faultstring:
-            result['msg'] = 'Device pool: {0} not found'.format(device_pool)
+            result['response'] = 'Device pool: {0} not found'.format(device_pool)
             result['error'] = resp[1].faultstring
             return result
         elif resp[0] == 500 and '{0} was not found'.format(route_group) in resp[1].faultstring:
-            result['msg'] = 'Route group: {0} not found'.format(route_group)
+            result['response'] = 'Route group: {0} not found'.format(route_group)
             result['error'] = resp[1].faultstring
             return result
         elif resp[0] == 500 and '{0} was not found'.format(media_resource_group_list) in resp[1].faultstring:
-            result['msg'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
+            result['response'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Device pool could not be updated'
+            result['response'] = 'Device pool could not be updated'
             result['error'] = resp[1].faultstring
             return result
 
@@ -542,20 +542,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Device pool successfully deleted'
+            result['response'] = 'Device pool successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'Device pool: {0} not found'.format(device_pool)
+            result['response'] = 'Device pool: {0} not found'.format(device_pool)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Device pool could not be deleted'
+            result['response'] = 'Device pool could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -587,20 +587,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Conference bridge successfully added'
+            result['response'] = 'Conference bridge successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Conference bridge already exists'.format(conference_bridge)
+            result['response'] = 'Conference bridge already exists'.format(conference_bridge)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Conference bridge could not be added'
+            result['response'] = 'Conference bridge could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -614,20 +614,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Conference bridge successfully deleted'
+            result['response'] = 'Conference bridge successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'Conference bridge: {0} not found'.format(conference_bridge)
+            result['response'] = 'Conference bridge: {0} not found'.format(conference_bridge)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Conference bridge could not be deleted'
+            result['response'] = 'Conference bridge could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -653,20 +653,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Conference bridge successfully added'
+            result['response'] = 'Conference bridge successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Conference bridge already exists'.format(transcoder)
+            result['response'] = 'Conference bridge already exists'.format(transcoder)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Conference bridge could not be added'
+            result['response'] = 'Conference bridge could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -680,20 +680,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Transcoder successfully deleted'
+            result['response'] = 'Transcoder successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'Transcoder: {0} not found'.format(transcoder)
+            result['response'] = 'Transcoder: {0} not found'.format(transcoder)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Transcoder could not be deleted'
+            result['response'] = 'Transcoder could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -797,20 +797,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'H323 gateway successfully added'
+            result['response'] = 'H323 gateway successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'H323 gateway already exists'.format(h323_gateway)
+            result['response'] = 'H323 gateway already exists'.format(h323_gateway)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'H323 gateway could not be added'
+            result['response'] = 'H323 gateway could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -828,24 +828,24 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'H323 gateway successfully updated'
+            result['response'] = 'H323 gateway successfully updated'
             return result
         elif resp[0] == 500 and '{0} was not found'.format(h323_gateway) in resp[1].faultstring:
-            result['msg'] = 'H323 gateway: {0} not found'.format(h323_gateway)
+            result['response'] = 'H323 gateway: {0} not found'.format(h323_gateway)
             result['error'] = resp[1].faultstring
             return result
         elif resp[0] == 500 and '{0} was not found'.format(media_resource_group_list) in resp[1].faultstring:
-            result['msg'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
+            result['response'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'H323 gateway could not be updated'
+            result['response'] = 'H323 gateway could not be updated'
             result['error'] = resp[1].faultstring
             return result
 
@@ -859,20 +859,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'H323 gateway successfully deleted'
+            result['response'] = 'H323 gateway successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'H323 gateway: {0} not found'.format(h323_gateway)
+            result['response'] = 'H323 gateway: {0} not found'.format(h323_gateway)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'H323 gateway could not be deleted'
+            result['response'] = 'H323 gateway could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -904,20 +904,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Media resource group successfully added'
+            result['response'] = 'Media resource group successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Media resource group already exists'.format(media_resource_group)
+            result['response'] = 'Media resource group already exists'.format(media_resource_group)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Media resource group could not be added'
+            result['response'] = 'Media resource group could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -931,20 +931,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Media resource group successfully deleted'
+            result['response'] = 'Media resource group successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'Media resource group: {0} not found'.format(media_resource_group)
+            result['response'] = 'Media resource group: {0} not found'.format(media_resource_group)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Media resource group could not be deleted'
+            result['response'] = 'Media resource group could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -969,20 +969,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Media resource group list successfully added'
+            result['response'] = 'Media resource group list successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Media resource group list already exists'.format(media_resource_group_list)
+            result['response'] = 'Media resource group list already exists'.format(media_resource_group_list)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Media resource group list could not be added'
+            result['response'] = 'Media resource group list could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -996,20 +996,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Media resource group list successfully deleted'
+            result['response'] = 'Media resource group list successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
+            result['response'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Media resource group list could not be deleted'
+            result['response'] = 'Media resource group list could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1034,20 +1034,20 @@ class AXL(object):
                                                'port': 0}) for i in members]
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Route group successfully added'
+            result['response'] = 'Route group successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Route group already exists'.format(route_group)
+            result['response'] = 'Route group already exists'.format(route_group)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Route group could not be added'
+            result['response'] = 'Route group could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1061,20 +1061,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Route group successfully deleted'
+            result['response'] = 'Route group successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'Route group: {0} not found'.format(route_group)
+            result['response'] = 'Route group: {0} not found'.format(route_group)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Route group could not be deleted'
+            result['response'] = 'Route group could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1176,20 +1176,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Directory number successfully added'
+            result['response'] = 'Directory number successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Directory number already exists'.format(pattern)
+            result['response'] = 'Directory number already exists'.format(pattern)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Directory number could not be added'
+            result['response'] = 'Directory number could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1203,20 +1203,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Directory number successfully deleted'
+            result['response'] = 'Directory number successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'Directory number: {0} not found'.format(directory_number)
+            result['response'] = 'Directory number: {0} not found'.format(directory_number)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Directory number could not be deleted'
+            result['response'] = 'Directory number could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1274,20 +1274,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'CTI route point successfully added'
+            result['response'] = 'CTI route point successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'CTI route point already exists'.format(cti_route_point)
+            result['response'] = 'CTI route point already exists'.format(cti_route_point)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'CTI route point could not be added'
+            result['response'] = 'CTI route point could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1301,20 +1301,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'CTI route point successfully deleted'
+            result['response'] = 'CTI route point successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'CTI route point: {0} not found'.format(cti_route_point)
+            result['response'] = 'CTI route point: {0} not found'.format(cti_route_point)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'CTI route point could not be deleted'
+            result['response'] = 'CTI route point could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1419,20 +1419,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Phone successfully added'
+            result['response'] = 'Phone successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Phone already exists'.format(phone)
+            result['response'] = 'Phone already exists'.format(phone)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Phone could not be added'
+            result['response'] = 'Phone could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1446,20 +1446,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Phone successfully deleted'
+            result['response'] = 'Phone successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'Phone: {0} not found'.format(phone)
+            result['response'] = 'Phone: {0} not found'.format(phone)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Phone could not be deleted'
+            result['response'] = 'Phone could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1495,20 +1495,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'result': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['result'] = resp[1]['return']['deviceProfile']
+            result['response'] = resp[1]['return']['deviceProfile']
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['result'] = 'Profile: {0} not found'.format(profile)
+            result['response'] = 'Profile: {0} not found'.format(profile)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['result'] = 'Unknown error'
+            result['response'] = 'Unknown error'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1573,20 +1573,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Device profile successfully added'
+            result['response'] = 'Device profile successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'Device profile already exists'.format(profile)
+            result['response'] = 'Device profile already exists'.format(profile)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Device profile could not be added'
+            result['response'] = 'Device profile could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1600,20 +1600,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'Device profile successfully deleted'
+            result['response'] = 'Device profile successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'Device profile: {0} not found'.format(profile)
+            result['response'] = 'Device profile: {0} not found'.format(profile)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'Device profile could not be deleted'
+            result['response'] = 'Device profile could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1647,20 +1647,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'result': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['result'] = resp[1]['return']['user']
+            result['response'] = resp[1]['return']['user']
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['result'] = 'User: {0} not found'.format(user_id)
+            result['response'] = 'User: {0} not found'.format(user_id)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['result'] = 'Unknown error'
+            result['response'] = 'Unknown error'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1686,20 +1686,20 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'User successfully added'
+            result['response'] = 'User successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['msg'] = 'User already exists'.format(user_id)
+            result['response'] = 'User already exists'.format(user_id)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'User could not be added'
+            result['response'] = 'User could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1732,32 +1732,32 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'User successfully updated'
+            result['response'] = 'User successfully updated'
             return result
         elif resp[0] == 500 and '{0} was not found'.format(user_id) in resp[1].faultstring:
-            result['msg'] = 'User ID: {0} not found'.format(user_id)
+            result['response'] = 'User ID: {0} not found'.format(user_id)
             result['error'] = resp[1].faultstring
             return result
         elif resp[0] == 500 and '{0} was not found'.format(device_profile) in resp[1].faultstring:
-            result['msg'] = 'Device profile: {0} not found'.format(device_profile)
+            result['response'] = 'Device profile: {0} not found'.format(device_profile)
             result['error'] = resp[1].faultstring
             return result
         elif resp[0] == 500 and '{0} was not found'.format(default_profile) in resp[1].faultstring:
-            result['msg'] = 'Default profile: {0} not found'.format(default_profile)
+            result['response'] = 'Default profile: {0} not found'.format(default_profile)
             result['error'] = resp[1].faultstring
             return result
         elif resp[0] == 500 and '{0} was not found'.format(subscribe_css) in resp[1].faultstring:
-            result['msg'] = 'Subscribe CSS: {0} not found'.format(subscribe_css)
+            result['response'] = 'Subscribe CSS: {0} not found'.format(subscribe_css)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'User could not be updated'
+            result['response'] = 'User could not be updated'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1774,7 +1774,7 @@ class AXL(object):
         """
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
@@ -1797,20 +1797,20 @@ class AXL(object):
                     pin=pin,
             )
         else:
-            result['msg'] = 'User could not be updated'
+            result['response'] = 'User could not be updated'
             result['error'] = 'Password and/or Pin are required'
             return result
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'User successfully updated'
+            result['response'] = 'User successfully updated'
             return result
         elif resp[0] == 500 and '{0} was not found'.format(user_id) in resp[1].faultstring:
-            result['msg'] = 'User ID: {0} not found'.format(user_id)
+            result['response'] = 'User ID: {0} not found'.format(user_id)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'User could not be updated'
+            result['response'] = 'User could not be updated'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1824,19 +1824,19 @@ class AXL(object):
 
         result = {
             'success': False,
-            'msg': '',
+            'response': '',
             'error': '',
         }
 
         if resp[0] == 200:
             result['success'] = True
-            result['msg'] = 'User successfully deleted'
+            result['response'] = 'User successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['msg'] = 'User: {0} not found'.format(user_id)
+            result['response'] = 'User: {0} not found'.format(user_id)
             result['error'] = resp[1].faultstring
             return result
         else:
-            result['msg'] = 'User could not be deleted'
+            result['response'] = 'User could not be deleted'
             result['error'] = resp[1].faultstring
             return result

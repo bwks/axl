@@ -28,17 +28,17 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_location(location)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_location_fails(self):
         location = 'location_not_exist'
         result = ucm.delete_location(location)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     def test_get_location_returns_successful_and_location_details(self):
         location = 'Hub_None'
         result = ucm.get_location(location)
-        self.assertEqual(result['success'], True) and self.assertEqual(result['result']['name'], location)
+        self.assertEqual(result['success'], True) and self.assertEqual(result['response']['name'], location)
 
     def test_get_locations_returns_all_location_details(self):
         result = ucm.get_locations(mini=False)
@@ -62,17 +62,17 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_region(region)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_region_fails(self):
         region = 'region_not_exist'
         result = ucm.delete_region(region)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     def test_update_region_with_non_existent_region_fails(self):
         result = ucm.update_region('reg_not_exists', 'blah')
 
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     def test_update_region_is_successful(self):
         region = 'test_upr_reg'
@@ -104,12 +104,12 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_srst(srst)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_srst_fails(self):
         srst = 'srst_not_exist'
         result = ucm.delete_srst(srst)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Device Pool
     def test_add_device_pool_and_delete_device_pool_is_successful(self):
@@ -127,12 +127,12 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_device_pool(device_pool)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_device_pool_fails(self):
         device_pool = 'dp_dont_exist'
         result = ucm.delete_device_pool(device_pool)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     def test_update_device_pool_rg_mrgl_is_successful(self):
         device_pool = 'test_dpu_dp'
@@ -154,7 +154,7 @@ class TestAXL(unittest.TestCase):
     def test_update_device_pool_rg_mrgl_with_non_existent_device_pool_fails(self):
         result = ucm.update_device_pool_rg_mrgl('rg_not_exists', 'blah', 'blah')
 
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     def test_update_device_pool_rg_mrgl_with_non_existent_route_group_fails(self):
         device_pool = 'test_dpu_no_rg_dp'
@@ -165,7 +165,7 @@ class TestAXL(unittest.TestCase):
         # clean up
         ucm.delete_device_pool(device_pool)
 
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     def test_update_device_pool_rg_mrgl_with_non_existent_media_resource_group_list_fails(self):
         device_pool = 'test_dpu_no_mrgl_dp'
@@ -180,7 +180,7 @@ class TestAXL(unittest.TestCase):
         ucm.delete_route_group(route_group)
         ucm.delete_device_pool(device_pool)
 
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Conference Bridge
     def test_add_conference_bridge_and_delete_conference_bridge_is_successful(self):
@@ -198,12 +198,12 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_conference_bridge(conference_bridge)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_conference_bridge_fails(self):
         conference_bridge = 'cfb_not_exist'
         result = ucm.delete_conference_bridge(conference_bridge)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Transcoder
     def test_add_transcoder_and_delete_transcoder_is_successful(self):
@@ -222,12 +222,12 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_transcoder(transcoder)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_transcoder_fails(self):
         transcoder = 'trans_not_exist'
         result = ucm.delete_transcoder(transcoder)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # H323 Gateway
     def test_add_h323_gateway_and_delete_h323_gateway_is_successful(self):
@@ -245,12 +245,12 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_h323_gateway(h323_gateway)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_h323_gateway_fails(self):
         h323_gateway = '6.6.6.6'
         result = ucm.delete_h323_gateway(h323_gateway)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     def test_update_h323_gateway_media_resource_group_list_is_successful(self):
         h323_gateway = '1.1.1.1'
@@ -268,7 +268,7 @@ class TestAXL(unittest.TestCase):
     def test_update_h323_gateway_media_resource_group_list_with_non_existent_h323_gateway_fails(self):
         result = ucm.update_h323_gateway_mrgl('h323_not_exists', 'blah')
 
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     def test_update_h323_gateway_media_resource_group_list_with_non_existent_media_resource_group_list_fails(self):
         h323_gateway = '2.2.2.2'
@@ -279,7 +279,7 @@ class TestAXL(unittest.TestCase):
         # clean up
         ucm.delete_h323_gateway(h323_gateway)
 
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Media resource group
     def test_add_media_resource_group_and_delete_media_resource_group_is_successful(self):
@@ -298,12 +298,12 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_media_resource_group(media_resource_group)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_media_resource_group_fails(self):
         media_resource_group = 'mrg_not_exist'
         result = ucm.delete_media_resource_group(media_resource_group)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Media resource group list
     def test_add_media_resource_group_list_and_delete_media_resource_group_list_is_successful(self):
@@ -322,12 +322,12 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_media_resource_group_list(media_resource_group_list)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_media_resource_group_list_fails(self):
         media_resource_group_list = 'mrgl_not_exist'
         result = ucm.delete_media_resource_group_list(media_resource_group_list)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Route group
     def test_add_route_group_and_delete_route_group_is_successful(self):
@@ -345,12 +345,12 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_route_group(route_group)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_route_group_fails(self):
         route_group = 'route_group_not_exist'
         result = ucm.delete_route_group(route_group)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Directory number
     def test_add_directory_number_and_delete_directory_number_is_successful(self):
@@ -369,12 +369,12 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_directory_number(directory_number)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_directory_number_fails(self):
         directory_number = '987654321'
         result = ucm.delete_route_group(directory_number)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # CTI route point
     def test_add_cti_route_point_and_delete_cti_route_point_is_successful(self):
@@ -393,12 +393,12 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_cti_route_point(cti_route_point)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_cti_route_point_fails(self):
         cti_route_point = 'cti_non_exist'
         result = ucm.delete_cti_route_point(cti_route_point)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Phones
     def test_add_phone_and_delete_phone_is_successful(self):
@@ -416,12 +416,12 @@ class TestAXL(unittest.TestCase):
             # clean up
             ucm.delete_phone(phone)
 
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_phone_fails(self):
         phone = 'sepaaaabbbbeeee'
         result = ucm.delete_phone(phone)
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Device Profiles
     def test_add_device_profile_and_delete_device_profile_is_successful(self):
@@ -439,11 +439,11 @@ class TestAXL(unittest.TestCase):
         # clean up
         ucm.delete_device_profile(profile)
 
-        self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['msg'], 'already exists')
+        self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
 
     def test_delete_non_existing_device_profile_fails(self):
         result = ucm.delete_device_profile('profile-not-exist')
-        self.assertEqual(result['success'], False) and self.assertIn(result['msg'], 'not found')
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     def test_get_device_profile_returns_successful_and_device_profile_details(self):
         profile = 'test_get_profile'
@@ -453,7 +453,7 @@ class TestAXL(unittest.TestCase):
         # clean up
         ucm.delete_device_profile(profile)
 
-        self.assertEqual(result['success'], True) and self.assertEqual(result['result']['name'], profile)
+        self.assertEqual(result['success'], True) and self.assertEqual(result['response']['name'], profile)
 
     def test_get_device_profiles_returns_all_device_profiles_details(self):
         result = ucm.get_device_profiles(mini=False)
@@ -476,4 +476,4 @@ class TestAXL(unittest.TestCase):
         # clean up
         ucm.delete_user(user)
 
-        self.assertEqual(result['success'], True) and self.assertEqual(result['result']['name'], user)
+        self.assertEqual(result['success'], True) and self.assertEqual(result['response']['name'], user)

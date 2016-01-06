@@ -55,7 +55,7 @@ ucm = AXL('username', 'password', wsdl, cucm)
 ####Adding a location
 ```python
 ucm.add_location(location='test_location')
-{'success': True, 'error': '', 'msg': 'Location successfully added'}
+{'success': True, 'error': '', 'response': 'Location successfully added'}
 ```
 
 Methods return result as a dictionary of values
@@ -63,20 +63,20 @@ Methods return result as a dictionary of values
 {
 'success': True/False, 
 'error': 'AXL Error', 
-'msg': 'Error Message'
+'response': 'Error Message'
 }
 ```
 
 ####Adding a region
 ```python
 ucm.add_region(region='test_region')
-{'success': True, 'error': '', 'msg': 'Region successfully added'}
+{'success': True, 'error': '', 'response': 'Region successfully added'}
 ```
 
 ####Adding a device pool
 ```python
 ucm.add_device_pool(device_pool='test_dev_pool', region='test_region', location='test_location')
-{'success': True, 'error': '', 'msg': 'Device pool successfully added'}
+{'success': True, 'error': '', 'response': 'Device pool successfully added'}
 ```
 
 ####Deleting a region
@@ -86,5 +86,5 @@ Like in the UCM web interface all dependencies must be removed before an object 
 ucm.delete_region(region='test_region')
 {'success': False,
  'error': Key value for constraint (informix.pk_region_pkid) is still being referenced.,
- 'msg': 'Region could not be deleted'}
+ 'response': 'Region could not be deleted'}
 ```
