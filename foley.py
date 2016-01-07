@@ -877,6 +877,126 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_route_groups(self, mini=True):
+        """
+        Get route groups
+        :param mini: return a list of tuples of route group details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listRouteGroup(
+                {'name': '%'}, returnedTags={'name': '', 'distributionAlgorithm': ''})[1]['return']['routeGroup']
+        if mini:
+            return [(i['name'], i['distributionAlgorithm']) for i in resp]
+        else:
+            return resp
+
+    def get_route_group(self, route_group):
+        """
+        Get route group
+        :param route_group: route group name
+        :return: result dictionary
+        """
+        resp = self.client.service.getRouteGroup(name=route_group)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['routeGroup']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Route group: {0} not found'.format(route_group)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def get_route_lists(self, mini=True):
+        """
+        Get route lists
+        :param mini: return a list of tuples of route list details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listRoutelist(
+                {'name': '%'}, returnedTags={'name': '', 'description': ''})[1]['return']['routeList']
+        if mini:
+            return [(i['name'], i['description']) for i in resp]
+        else:
+            return resp
+
+    def get_route_list(self, route_list):
+        """
+        Get route list
+        :param route_list: route list name
+        :return: result dictionary
+        """
+        resp = self.client.service.getRouteList(name=route_list)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['routeList']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Route list: {0} not found'.format(route_list)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def get_route_patterns(self, mini=True):
+        """
+        Get route patterns
+        :param mini: return a list of tuples of route pattern details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listRoutePattern(
+                {'pattern': '%'}, returnedTags={'pattern': '', 'description': ''})[1]['return']['routePattern']
+        if mini:
+            return [(i['pattern'], i['description']) for i in resp]
+        else:
+            return resp
+
+    def get_route_pattern(self, pattern):
+        """
+        Get route pattern
+        :param pattern: route pattern
+        :return: result dictionary
+        """
+        resp = self.client.service.getRoutePattern(pattern=pattern)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['routePattern']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Route pattern: {0} not found'.format(pattern)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
     def get_media_resource_group(self, media_resource_group):
         return self.client.service.getMediaResourceGroup(name=media_resource_group)
 
