@@ -7,6 +7,7 @@ Dependencies:
 
 Links:
  - http://www.imdb.com/character/ch0005280/
+ - https://developer.cisco.com/site/axl/
 """
 
 import ssl
@@ -1334,6 +1335,7 @@ class AXL(object):
                   protocol='SCCP',
                   softkey_template='Standard User',
                   enable_em='true',
+                  em_service_name='Extension Mobility',
                   em_service_url=False,
                   em_url_button_enable=False,
                   em_url_button_index='1',
@@ -1362,6 +1364,7 @@ class AXL(object):
         :param protocol:
         :param softkey_template:
         :param enable_em:
+        :param em_service_name:
         :param em_service_url:
         :param em_url_button_enable:
         :param em_url_button_index:
@@ -1407,8 +1410,8 @@ class AXL(object):
 
         if em_service_url:
             req['services']['service'].append([{
-                'telecasterServiceName': 'Extension Mobility',
-                'name': 'Extension Mobility',
+                'telecasterServiceName': em_service_name,
+                'name': em_service_name,
                 'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
             }])
 
@@ -1520,6 +1523,7 @@ class AXL(object):
                            dev_class='Device Profile',
                            protocol='SCCP',
                            softkey_template='Standard User',
+                           em_service_name='Extension Mobility',
                            lines=[]):
 
         """
@@ -1537,6 +1541,7 @@ class AXL(object):
         :param dev_class:
         :param protocol:
         :param softkey_template:
+        :param em_service_name:
         :return:
         """
 
@@ -1550,8 +1555,8 @@ class AXL(object):
             'phoneTemplateName': phone_template,
             'lines': {'line': []},
             'services': {'service': [{
-                'telecasterServiceName': 'Extension Mobility',
-                'name': 'Extension Mobility',
+                'telecasterServiceName': em_service_name,
+                'name': em_service_name,
                 'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
             }]},
         }
