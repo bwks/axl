@@ -917,242 +917,31 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
-    def get_route_lists(self, mini=True):
+    def add_route_group(self,
+                        route_group,
+                        distribution_algorithm='Top Down',
+                        members=[]):
         """
-        Get route lists
-        :param mini: return a list of tuples of route list details
-        :return: A list of dictionary's
+        Add a route group
+        :param route_group: Route group name
+        :param distribution_algorithm: Top Down/Circular
+        :param members: A list of devices to add (must already exist DUH!)
         """
-        resp = self.client.service.listRoutelist(
-                {'name': '%'}, returnedTags={'name': '', 'description': ''})[1]['return']['routeList']
-        if mini:
-            return [(i['name'], i['description']) for i in resp]
-        else:
-            return resp
-
-    def get_route_list(self, route_list):
-        """
-        Get route list
-        :param route_list: route list name
-        :return: result dictionary
-        """
-        resp = self.client.service.getRouteList(name=route_list)
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = resp[1]['return']['routeList']
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Route list: {0} not found'.format(route_list)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Unknown error'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def get_route_patterns(self, mini=True):
-        """
-        Get route patterns
-        :param mini: return a list of tuples of route pattern details
-        :return: A list of dictionary's
-        """
-        resp = self.client.service.listRoutePattern(
-                {'pattern': '%'}, returnedTags={'pattern': '', 'description': ''})[1]['return']['routePattern']
-        if mini:
-            return [(i['pattern'], i['description']) for i in resp]
-        else:
-            return resp
-
-    def get_route_pattern(self, pattern):
-        """
-        Get route pattern
-        :param pattern: route pattern
-        :return: result dictionary
-        """
-        resp = self.client.service.getRoutePattern(pattern=pattern)
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = resp[1]['return']['routePattern']
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Route pattern: {0} not found'.format(pattern)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Unknown error'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def get_media_resource_group(self, media_resource_group):
-        return self.client.service.getMediaResourceGroup(name=media_resource_group)
-
-    def add_media_resource_group(self,
-                                 media_resource_group,
-                                 description='',
-                                 multicast='false',
-                                 members=[]):
-        """
-        Add a media resource group
-        :param media_resource_group: Media resource group name
-        :param description: Media resource description
-        :param multicast: Mulicast enabled
-        :param members: Media resource group members
-        :return: result dictionary
-        """
-        resp = self.client.service.addMediaResourceGroup({
-            'name': media_resource_group,
-            'description': description,
-            'multicast': multicast,
-            'members': {'member': []}
-        })
-
-        if members:
-            [resp['members']['member'].append({'deviceName': i}) for i in members]
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Media resource group successfully added'
-            return result
-        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['response'] = 'Media resource group already exists'.format(media_resource_group)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Media resource group could not be added'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def delete_media_resource_group(self, media_resource_group):
-        """
-        Delete a Media resource group
-        :param media_resource_group: The name of the media resource group to delete
-        :return: result dictionary
-        """
-        resp = self.client.service.removeMediaResourceGroup(name=media_resource_group)
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Media resource group successfully deleted'
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Media resource group: {0} not found'.format(media_resource_group)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Media resource group could not be deleted'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def get_media_resource_group_list(self, media_resource_group_list):
-        return self.client.service.getMediaResourceList(name=media_resource_group_list)
-
-    def add_media_resource_group_list(self, media_resource_group_list, members=[]):
-        """
-        Add a media resource group list
-        :param media_resource_group_list: Media resource group list name
-        :param members: A list of members
-        :return:
-        """
-        resp = self.client.service.addMediaResourceList({
-            'name': media_resource_group_list,
-            'members': {'member': []}
-        })
-
-        if members:
-            [resp['members']['member'].append({'order': members.index(i),
-                                               'mediaResourceGroupName': i}) for i in members]
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Media resource group list successfully added'
-            return result
-        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['response'] = 'Media resource group list already exists'.format(media_resource_group_list)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Media resource group list could not be added'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def delete_media_resource_group_list(self, media_resource_group_list):
-        """
-        Delete a Media resource group list
-        :param media_resource_group_list: The name of the media resource group list to delete
-        :return: result dictionary
-        """
-        resp = self.client.service.removeMediaResourceList(name=media_resource_group_list)
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Media resource group list successfully deleted'
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Media resource group list could not be deleted'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def add_route_group(self, route_group, members=[], distribution_algorithm='Top Down'):
-        """
-        Add route group
-        :param route_group:
-        :param members:
-        :param distribution_algorithm:
-        :return: result dictionary
-        """
-
-        resp = self.client.service.addRouteGroup({
+        req = {
             'name': route_group,
             'distributionAlgorithm': distribution_algorithm,
-            'members': {'member': []}
-        })
+            'members': {'member': []},
+        }
 
         if members:
-            [resp['members']['member'].append({'deviceName': i,
-                                               'deviceSelectionOrder': members.index(i) + 1,
-                                               'port': 0}) for i in members]
+            [req['members']['member'].append({
+                'deviceName':  i,
+                'deviceSelectionOrder': members.index(i) + 1,
+                'port': 0
+            }) for i in members]
+
+        resp = self.client.service.addRouteGroup(req)
+
         result = {
             'success': False,
             'response': '',
@@ -1172,799 +961,1080 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
-    def delete_route_group(self, route_group):
-        """
-        Delete a Route group
-        :param route_group: The name of the Route group to delete
-        :return: result dictionary
-        """
-        resp = self.client.service.removeRouteGroup(name=route_group)
 
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
+def get_route_lists(self, mini=True):
+    """
+    Get route lists
+    :param mini: return a list of tuples of route list details
+    :return: A list of dictionary's
+    """
+    resp = self.client.service.listRoutelist(
+            {'name': '%'}, returnedTags={'name': '', 'description': ''})[1]['return']['routeList']
+    if mini:
+        return [(i['name'], i['description']) for i in resp]
+    else:
+        return resp
 
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Route group successfully deleted'
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Route group: {0} not found'.format(route_group)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Route group could not be deleted'
-            result['error'] = resp[1].faultstring
-            return result
 
-    def add_directory_number(self,
-                             pattern,
-                             route_partition_name='',
+def get_route_list(self, route_list):
+    """
+    Get route list
+    :param route_list: route list name
+    :return: result dictionary
+    """
+    resp = self.client.service.getRouteList(name=route_list)
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = resp[1]['return']['routeList']
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'Route list: {0} not found'.format(route_list)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Unknown error'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def get_route_patterns(self, mini=True):
+    """
+    Get route patterns
+    :param mini: return a list of tuples of route pattern details
+    :return: A list of dictionary's
+    """
+    resp = self.client.service.listRoutePattern(
+            {'pattern': '%'}, returnedTags={'pattern': '', 'description': ''})[1]['return']['routePattern']
+    if mini:
+        return [(i['pattern'], i['description']) for i in resp]
+    else:
+        return resp
+
+
+def get_route_pattern(self, pattern):
+    """
+    Get route pattern
+    :param pattern: route pattern
+    :return: result dictionary
+    """
+    resp = self.client.service.getRoutePattern(pattern=pattern)
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = resp[1]['return']['routePattern']
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'Route pattern: {0} not found'.format(pattern)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Unknown error'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def get_media_resource_group(self, media_resource_group):
+    return self.client.service.getMediaResourceGroup(name=media_resource_group)
+
+
+def add_media_resource_group(self,
+                             media_resource_group,
                              description='',
-                             alerting_name='',
-                             ascii_alerting_name='',
-                             shared_line_css='',
-                             aar_neighbourhood='',
-                             call_forward_css='',
-                             vm_profile_name='NoVoiceMail',
-                             aar_destination_mask='',
-                             call_forward_destination='',
-                             forward_all_to_vm='false',
-                             forward_all_destination='',
-                             forward_to_vm='false'):
-        """
-        Add a directory number
-        :param pattern: Directory number
-        :param route_partition_name: Route partition name
-        :param description: Directory number description
-        :param alerting_name: Alerting name
-        :param ascii_alerting_name: ASCII alerting name
-        :param shared_line_css: Calling search space
-        :param aar_neighbourhood: AAR group
-        :param call_forward_css: Call forward calling search space
-        :param vm_profile_name: Voice mail profile
-        :param aar_destination_mask: AAR destination mask
-        :param call_forward_destination: Call forward destination
-        :param forward_all_to_vm: Forward all to voice mail checkbox
-        :param forward_all_destination: Forward all destination
-        :param forward_to_vm: Forward to voice mail checkbox
-        :return: result dictionary
-        """
+                             multicast='false',
+                             members=[]):
+    """
+    Add a media resource group
+    :param media_resource_group: Media resource group name
+    :param description: Media resource description
+    :param multicast: Mulicast enabled
+    :param members: Media resource group members
+    :return: result dictionary
+    """
+    resp = self.client.service.addMediaResourceGroup({
+        'name': media_resource_group,
+        'description': description,
+        'multicast': multicast,
+        'members': {'member': []}
+    })
 
-        resp = self.client.service.addLine({
-            'pattern': pattern,
-            'routePartitionName': route_partition_name,
-            'description': description,
-            'alertingName': alerting_name,
-            'asciiAlertingName': ascii_alerting_name,
-            'voiceMailProfileName': vm_profile_name,
-            'shareLineAppearanceCssName': shared_line_css,
-            'aarNeighborhoodName': aar_neighbourhood,
-            'aarDestinationMask': aar_destination_mask,
-            'callForwardAll': {
-                'forwardToVoiceMail': forward_all_to_vm,
-                'callingSearchSpaceName': call_forward_css,
-                'destination': forward_all_destination,
+    if members:
+        [resp['members']['member'].append({'deviceName': i}) for i in members]
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Media resource group successfully added'
+        return result
+    elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+        result['response'] = 'Media resource group already exists'.format(media_resource_group)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Media resource group could not be added'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def delete_media_resource_group(self, media_resource_group):
+    """
+    Delete a Media resource group
+    :param media_resource_group: The name of the media resource group to delete
+    :return: result dictionary
+    """
+    resp = self.client.service.removeMediaResourceGroup(name=media_resource_group)
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Media resource group successfully deleted'
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'Media resource group: {0} not found'.format(media_resource_group)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Media resource group could not be deleted'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def get_media_resource_group_list(self, media_resource_group_list):
+    return self.client.service.getMediaResourceList(name=media_resource_group_list)
+
+
+def add_media_resource_group_list(self, media_resource_group_list, members=[]):
+    """
+    Add a media resource group list
+    :param media_resource_group_list: Media resource group list name
+    :param members: A list of members
+    :return:
+    """
+    resp = self.client.service.addMediaResourceList({
+        'name': media_resource_group_list,
+        'members': {'member': []}
+    })
+
+    if members:
+        [resp['members']['member'].append({'order': members.index(i),
+                                           'mediaResourceGroupName': i}) for i in members]
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Media resource group list successfully added'
+        return result
+    elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+        result['response'] = 'Media resource group list already exists'.format(media_resource_group_list)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Media resource group list could not be added'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def delete_media_resource_group_list(self, media_resource_group_list):
+    """
+    Delete a Media resource group list
+    :param media_resource_group_list: The name of the media resource group list to delete
+    :return: result dictionary
+    """
+    resp = self.client.service.removeMediaResourceList(name=media_resource_group_list)
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Media resource group list successfully deleted'
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Media resource group list could not be deleted'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def add_route_group(self, route_group, members=[], distribution_algorithm='Top Down'):
+    """
+    Add route group
+    :param route_group:
+    :param members:
+    :param distribution_algorithm:
+    :return: result dictionary
+    """
+
+    resp = self.client.service.addRouteGroup({
+        'name': route_group,
+        'distributionAlgorithm': distribution_algorithm,
+        'members': {'member': []}
+    })
+
+    if members:
+        [resp['members']['member'].append({'deviceName': i,
+                                           'deviceSelectionOrder': members.index(i) + 1,
+                                           'port': 0}) for i in members]
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Route group successfully added'
+        return result
+    elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+        result['response'] = 'Route group already exists'.format(route_group)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Route group could not be added'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def delete_route_group(self, route_group):
+    """
+    Delete a Route group
+    :param route_group: The name of the Route group to delete
+    :return: result dictionary
+    """
+    resp = self.client.service.removeRouteGroup(name=route_group)
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Route group successfully deleted'
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'Route group: {0} not found'.format(route_group)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Route group could not be deleted'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def add_directory_number(self,
+                         pattern,
+                         route_partition_name='',
+                         description='',
+                         alerting_name='',
+                         ascii_alerting_name='',
+                         shared_line_css='',
+                         aar_neighbourhood='',
+                         call_forward_css='',
+                         vm_profile_name='NoVoiceMail',
+                         aar_destination_mask='',
+                         call_forward_destination='',
+                         forward_all_to_vm='false',
+                         forward_all_destination='',
+                         forward_to_vm='false'):
+    """
+    Add a directory number
+    :param pattern: Directory number
+    :param route_partition_name: Route partition name
+    :param description: Directory number description
+    :param alerting_name: Alerting name
+    :param ascii_alerting_name: ASCII alerting name
+    :param shared_line_css: Calling search space
+    :param aar_neighbourhood: AAR group
+    :param call_forward_css: Call forward calling search space
+    :param vm_profile_name: Voice mail profile
+    :param aar_destination_mask: AAR destination mask
+    :param call_forward_destination: Call forward destination
+    :param forward_all_to_vm: Forward all to voice mail checkbox
+    :param forward_all_destination: Forward all destination
+    :param forward_to_vm: Forward to voice mail checkbox
+    :return: result dictionary
+    """
+
+    resp = self.client.service.addLine({
+        'pattern': pattern,
+        'routePartitionName': route_partition_name,
+        'description': description,
+        'alertingName': alerting_name,
+        'asciiAlertingName': ascii_alerting_name,
+        'voiceMailProfileName': vm_profile_name,
+        'shareLineAppearanceCssName': shared_line_css,
+        'aarNeighborhoodName': aar_neighbourhood,
+        'aarDestinationMask': aar_destination_mask,
+        'callForwardAll': {
+            'forwardToVoiceMail': forward_all_to_vm,
+            'callingSearchSpaceName': call_forward_css,
+            'destination': forward_all_destination,
+        },
+        'callForwardBusy': {
+            'forwardToVoiceMail': forward_to_vm,
+            'callingSearchSpaceName': call_forward_css,
+            'destination': call_forward_destination,
+        },
+        'callForwardBusyInt': {
+            'forwardToVoiceMail': forward_to_vm,
+            'callingSearchSpaceName': call_forward_css,
+            'destination': call_forward_destination,
+        },
+        'callForwardNoAnswer': {
+            'forwardToVoiceMail': forward_to_vm,
+            'callingSearchSpaceName': call_forward_css,
+            'destination': call_forward_destination,
+        },
+        'callForwardNoAnswerInt': {
+            'forwardToVoiceMail': forward_to_vm,
+            'callingSearchSpaceName': call_forward_css,
+            'destination': call_forward_destination,
+        },
+        'callForwardNoCoverage': {
+            'forwardToVoiceMail': forward_to_vm,
+            'callingSearchSpaceName': call_forward_css,
+            'destination': call_forward_destination,
+        },
+        'callForwardNoCoverageInt': {
+            'forwardToVoiceMail': forward_to_vm,
+            'callingSearchSpaceName': call_forward_css,
+            'destination': call_forward_destination,
+        },
+        'callForwardOnFailure': {
+            'forwardToVoiceMail': forward_to_vm,
+            'callingSearchSpaceName': call_forward_css,
+            'destination': call_forward_destination,
+        },
+        'callForwardNotRegistered': {
+            'forwardToVoiceMail': forward_to_vm,
+            'callingSearchSpaceName': call_forward_css,
+            'destination': call_forward_destination,
+        },
+        'callForwardNotRegisteredInt': {
+            'forwardToVoiceMail': forward_to_vm,
+            'callingSearchSpaceName': call_forward_css,
+            'destination': call_forward_destination,
+        },
+    })
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Directory number successfully added'
+        return result
+    elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+        result['response'] = 'Directory number already exists'.format(pattern)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Directory number could not be added'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def delete_directory_number(self, directory_number):
+    """
+    Delete a directory number
+    :param directory_number: The name of the directory number to delete
+    :return: result dictionary
+    """
+    resp = self.client.service.removeLine(pattern=directory_number)
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Directory number successfully deleted'
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'Directory number: {0} not found'.format(directory_number)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Directory number could not be deleted'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def add_cti_route_point(self,
+                        cti_route_point,
+                        description='',
+                        device_pool='Default',
+                        location='Hub_None',
+                        common_device_config='',
+                        css='',
+                        product='CTI Route Point',
+                        dev_class='CTI Route Point',
+                        protocol='SCCP',
+                        protocol_slide='User',
+                        use_trusted_relay_point='Default',
+                        lines=[]):
+    """
+    Add CTI route point
+    lines should be a list of tuples containing the pattern and partition
+    EG: [('77777', 'AU_PHONE_PT')]
+    :param cti_route_point: CTI route point name
+    :param description: CTI route point description
+    :param device_pool: Device pool name
+    :param location: Location name
+    :param common_device_config: Common device config name
+    :param css: Calling search space name
+    :param product: CTI device type
+    :param dev_class: CTI device type
+    :param protocol: CTI protocol
+    :param protocol_slide: CTI protocol slide
+    :param use_trusted_relay_point: Use trusted relay point: (Default, On, Off)
+    :param lines: A list of tuples of [(directory_number, partition)]
+    :return:
+    """
+
+    resp = self.client.service.addCtiRoutePoint({
+        'name': cti_route_point,
+        'description': description,
+        'product': product,
+        'class': dev_class,
+        'protocol': protocol,
+        'protocolSide': protocol_slide,
+        'commonDeviceConfigName': common_device_config,
+        'callingSearchSpaceName': css,
+        'devicePoolName': device_pool,
+        'locationName': location,
+        'useTrustedRelayPoint': use_trusted_relay_point,
+        'lines': {'line': []}
+    })
+
+    if lines:
+        [resp['lines']['line'].append({'index': lines.index(i) + 1,
+                                       'dirn': {'pattern': i[0], 'routePartitionName': i[1]}
+                                       }) for i in lines]
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'CTI route point successfully added'
+        return result
+    elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+        result['response'] = 'CTI route point already exists'.format(cti_route_point)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'CTI route point could not be added'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def delete_cti_route_point(self, cti_route_point):
+    """
+    Delete a CTI route point
+    :param cti_route_point: The name of the CTI route point to delete
+    :return: result dictionary
+    """
+    resp = self.client.service.removeCtiRoutePoint(name=cti_route_point)
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'CTI route point successfully deleted'
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'CTI route point: {0} not found'.format(cti_route_point)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'CTI route point could not be deleted'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def add_phone(self,
+              phone,
+              description='',
+              product='Cisco 7941',
+              device_pool='Default',
+              location='Hub_None',
+              phone_template='Standard 7941 SCCP',
+              common_device_config='',
+              css='',
+              aar_css='',
+              subscribe_css='',
+              lines=[],
+              dev_class='Phone',
+              protocol='SCCP',
+              softkey_template='Standard User',
+              enable_em='true',
+              em_service_name='Extension Mobility',
+              em_service_url=False,
+              em_url_button_enable=False,
+              em_url_button_index='1',
+              em_url_label='Press here to logon',
+              ehook_enable=1):
+    """
+    lines takes a list of Tuples with properties for each line EG:
+
+                                           display                           external
+        DN     partition    display        ascii          label               mask
+    [('77777', 'LINE_PT', 'Jim Smith', 'Jim Smith', 'Jim Smith - 77777', '0294127777')]
+    Add A phone
+    :param phone:
+    :param description:
+    :param product:
+    :param device_pool:
+    :param location:
+    :param phone_template:
+    :param common_device_config:
+    :param css:
+    :param aar_css:
+    :param subscribe_css:
+    :param lines:
+    :param dev_class:
+    :param protocol:
+    :param softkey_template:
+    :param enable_em:
+    :param em_service_name:
+    :param em_service_url:
+    :param em_url_button_enable:
+    :param em_url_button_index:
+    :param em_url_label:
+    :param ehook_enable:
+    :return:
+    """
+
+    req = {
+        'name': phone,
+        'description': description,
+        'product': product,
+        'class': dev_class,
+        'protocol': protocol,
+        'commonDeviceConfigName': common_device_config,
+        'softkeyTemplateName': softkey_template,
+        'phoneTemplateName': phone_template,
+        'devicePoolName': device_pool,
+        'locationName': location,
+        'enableExtensionMobility': enable_em,
+        'callingSearchSpaceName': css,
+        'automatedAlternateRoutingCssName': aar_css,
+        'subscribeCallingSearchSpaceName': subscribe_css,
+        'lines': {'line': []},
+        'services': {'service': []},
+        'vendorConfig': [{
+            'ehookEnable': ehook_enable
+        }]
+    }
+
+    if lines:
+        [req['lines']['line'].append({
+            'index': lines.index(i) + 1,
+            'dirn': {
+                'pattern': i[0],
+                'routePartitionName': i[1]
             },
-            'callForwardBusy': {
-                'forwardToVoiceMail': forward_to_vm,
-                'callingSearchSpaceName': call_forward_css,
-                'destination': call_forward_destination,
+            'display': i[2],
+            'displayAscii': i[3],
+            'label': i[4],
+            'e164Mask': i[5]
+        }) for i in lines]
+
+    if em_service_url:
+        req['services']['service'].append([{
+            'telecasterServiceName': em_service_name,
+            'name': em_service_name,
+            'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
+        }])
+
+    if em_url_button_enable:
+        req['services']['service'][0].update({'urlButtonIndex': em_url_button_index, 'urlLabel': em_url_label})
+
+    resp = self.client.service.addPhone(req)
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Phone successfully added'
+        return result
+    elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+        result['response'] = 'Phone already exists'.format(phone)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Phone could not be added'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def delete_phone(self, phone):
+    """
+    Delete a phone
+    :param phone: The name of the phone to delete
+    :return: result dictionary
+    """
+    resp = self.client.service.removePhone(name=phone)
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Phone successfully deleted'
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'Phone: {0} not found'.format(phone)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Phone could not be deleted'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def get_device_profiles(self, mini=True):
+    """
+    Get device profile details
+    :param mini: return a list of tuples of device profile details
+    :return: A list of dictionary's
+    """
+    resp = self.client.service.listDeviceProfile(
+            {'name': '%'}, returnedTags={
+                'name': '',
+                'product': '',
+                'protocol': '',
+                'phoneTemplateName': '',
+            })[1]['return']['deviceProfile']
+    if mini:
+        return [(i['name'],
+                 i['product'],
+                 i['protocol'],
+                 i['phoneTemplateName']['value'],
+                 ) for i in resp]
+    else:
+        return resp
+
+
+def get_device_profile(self, profile):
+    """
+    Get device profile parameters
+    :param profile: profile name
+    :return: result dictionary
+    """
+    resp = self.client.service.getDeviceProfile(name=profile)
+
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
+
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = resp[1]['return']['deviceProfile']
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'Profile: {0} not found'.format(profile)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Unknown error'
+        result['error'] = resp[1].faultstring
+        return result
+
+
+def add_device_profile(self,
+                       profile,
+                       description='',
+                       product='Cisco 7962',
+                       phone_template='Standard 7962G SCCP',
+                       dev_class='Device Profile',
+                       protocol='SCCP',
+                       softkey_template='Standard User',
+                       em_service_name='Extension Mobility',
+                       lines=[]):
+    """
+    Add A Device profile for use with extension mobility
+    lines takes a list of Tuples with properties for each line EG:
+
+                                           display                           external
+        DN     partition    display        ascii          label               mask
+    [('77777', 'LINE_PT', 'Jim Smith', 'Jim Smith', 'Jim Smith - 77777', '0294127777')]
+    :param profile:
+    :param description:
+    :param product:
+    :param phone_template:
+    :param lines:
+    :param dev_class:
+    :param protocol:
+    :param softkey_template:
+    :param em_service_name:
+    :return:
+    """
+
+    req = {
+        'name': profile,
+        'description': description,
+        'product': product,
+        'class': dev_class,
+        'protocol': protocol,
+        'softkeyTemplateName': softkey_template,
+        'phoneTemplateName': phone_template,
+        'lines': {'line': []},
+        'services': {'service': [{
+            'telecasterServiceName': em_service_name,
+            'name': em_service_name,
+            'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
+        }]},
+    }
+
+    if lines:
+        [req['lines']['line'].append({
+            'index': lines.index(i) + 1,
+            'dirn': {
+                'pattern': i[0],
+                'routePartitionName': i[1]
             },
-            'callForwardBusyInt': {
-                'forwardToVoiceMail': forward_to_vm,
-                'callingSearchSpaceName': call_forward_css,
-                'destination': call_forward_destination,
-            },
-            'callForwardNoAnswer': {
-                'forwardToVoiceMail': forward_to_vm,
-                'callingSearchSpaceName': call_forward_css,
-                'destination': call_forward_destination,
-            },
-            'callForwardNoAnswerInt': {
-                'forwardToVoiceMail': forward_to_vm,
-                'callingSearchSpaceName': call_forward_css,
-                'destination': call_forward_destination,
-            },
-            'callForwardNoCoverage': {
-                'forwardToVoiceMail': forward_to_vm,
-                'callingSearchSpaceName': call_forward_css,
-                'destination': call_forward_destination,
-            },
-            'callForwardNoCoverageInt': {
-                'forwardToVoiceMail': forward_to_vm,
-                'callingSearchSpaceName': call_forward_css,
-                'destination': call_forward_destination,
-            },
-            'callForwardOnFailure': {
-                'forwardToVoiceMail': forward_to_vm,
-                'callingSearchSpaceName': call_forward_css,
-                'destination': call_forward_destination,
-            },
-            'callForwardNotRegistered': {
-                'forwardToVoiceMail': forward_to_vm,
-                'callingSearchSpaceName': call_forward_css,
-                'destination': call_forward_destination,
-            },
-            'callForwardNotRegisteredInt': {
-                'forwardToVoiceMail': forward_to_vm,
-                'callingSearchSpaceName': call_forward_css,
-                'destination': call_forward_destination,
-            },
-        })
+            'display': i[2],
+            'displayAscii': i[3],
+            'label': i[4],
+            'e164Mask': i[5]
+        }) for i in lines]
 
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
+    resp = self.client.service.addDeviceProfile(req)
 
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Directory number successfully added'
-            return result
-        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['response'] = 'Directory number already exists'.format(pattern)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Directory number could not be added'
-            result['error'] = resp[1].faultstring
-            return result
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
 
-    def delete_directory_number(self, directory_number):
-        """
-        Delete a directory number
-        :param directory_number: The name of the directory number to delete
-        :return: result dictionary
-        """
-        resp = self.client.service.removeLine(pattern=directory_number)
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Device profile successfully added'
+        return result
+    elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+        result['response'] = 'Device profile already exists'.format(profile)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Device profile could not be added'
+        result['error'] = resp[1].faultstring
+        return result
 
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
 
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Directory number successfully deleted'
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Directory number: {0} not found'.format(directory_number)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Directory number could not be deleted'
-            result['error'] = resp[1].faultstring
-            return result
+def delete_device_profile(self, profile):
+    """
+    Delete a device profile
+    :param profile: The name of the device profile to delete
+    :return: result dictionary
+    """
+    resp = self.client.service.removeDeviceProfile(name=profile)
 
-    def add_cti_route_point(self,
-                            cti_route_point,
-                            description='',
-                            device_pool='Default',
-                            location='Hub_None',
-                            common_device_config='',
-                            css='',
-                            product='CTI Route Point',
-                            dev_class='CTI Route Point',
-                            protocol='SCCP',
-                            protocol_slide='User',
-                            use_trusted_relay_point='Default',
-                            lines=[]):
-        """
-        Add CTI route point
-        lines should be a list of tuples containing the pattern and partition
-        EG: [('77777', 'AU_PHONE_PT')]
-        :param cti_route_point: CTI route point name
-        :param description: CTI route point description
-        :param device_pool: Device pool name
-        :param location: Location name
-        :param common_device_config: Common device config name
-        :param css: Calling search space name
-        :param product: CTI device type
-        :param dev_class: CTI device type
-        :param protocol: CTI protocol
-        :param protocol_slide: CTI protocol slide
-        :param use_trusted_relay_point: Use trusted relay point: (Default, On, Off)
-        :param lines: A list of tuples of [(directory_number, partition)]
-        :return:
-        """
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
 
-        resp = self.client.service.addCtiRoutePoint({
-            'name': cti_route_point,
-            'description': description,
-            'product': product,
-            'class': dev_class,
-            'protocol': protocol,
-            'protocolSide': protocol_slide,
-            'commonDeviceConfigName': common_device_config,
-            'callingSearchSpaceName': css,
-            'devicePoolName': device_pool,
-            'locationName': location,
-            'useTrustedRelayPoint': use_trusted_relay_point,
-            'lines': {'line': []}
-        })
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'Device profile successfully deleted'
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'Device profile: {0} not found'.format(profile)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Device profile could not be deleted'
+        result['error'] = resp[1].faultstring
+        return result
 
-        if lines:
-            [resp['lines']['line'].append({'index': lines.index(i) + 1,
-                                           'dirn': {'pattern': i[0], 'routePartitionName': i[1]}
-                                           }) for i in lines]
 
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
+def get_users(self, mini=True):
+    """
+    Get users details
+    :param mini: return a list of tuples of user details
+    :return: A list of dictionary's
+    """
+    resp = self.client.service.listUser(
+            {'userid': '%'}, returnedTags={
+                'userid': '',
+                'firstName': '',
+                'lastName': '',
+            })[1]['return']['user']
+    if mini:
+        return [(i['userid'],
+                 i['firstName'],
+                 i['lastName'],
+                 ) for i in resp]
+    else:
+        return resp
 
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'CTI route point successfully added'
-            return result
-        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['response'] = 'CTI route point already exists'.format(cti_route_point)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'CTI route point could not be added'
-            result['error'] = resp[1].faultstring
-            return result
 
-    def delete_cti_route_point(self, cti_route_point):
-        """
-        Delete a CTI route point
-        :param cti_route_point: The name of the CTI route point to delete
-        :return: result dictionary
-        """
-        resp = self.client.service.removeCtiRoutePoint(name=cti_route_point)
+def get_user(self, user_id):
+    """
+    Get user parameters
+    :param user_id: profile name
+    :return: result dictionary
+    """
+    resp = self.client.service.getUser(userid=user_id)
 
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
 
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'CTI route point successfully deleted'
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'CTI route point: {0} not found'.format(cti_route_point)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'CTI route point could not be deleted'
-            result['error'] = resp[1].faultstring
-            return result
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = resp[1]['return']['user']
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'User: {0} not found'.format(user_id)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'Unknown error'
+        result['error'] = resp[1].faultstring
+        return result
 
-    def add_phone(self,
-                  phone,
-                  description='',
-                  product='Cisco 7941',
-                  device_pool='Default',
-                  location='Hub_None',
-                  phone_template='Standard 7941 SCCP',
-                  common_device_config='',
-                  css='',
-                  aar_css='',
-                  subscribe_css='',
-                  lines=[],
-                  dev_class='Phone',
-                  protocol='SCCP',
-                  softkey_template='Standard User',
-                  enable_em='true',
-                  em_service_name='Extension Mobility',
-                  em_service_url=False,
-                  em_url_button_enable=False,
-                  em_url_button_index='1',
-                  em_url_label='Press here to logon',
-                  ehook_enable=1):
 
-        """
-        lines takes a list of Tuples with properties for each line EG:
+def add_user(self,
+             user_id,
+             last_name,
+             first_name='',
+             user_profile='Standard (Factory Default) User Profile'):
+    """
+    Add a user
+    :param user_id: User ID of the user to add
+    :param first_name: First name of the user to add
+    :param last_name: Last name of the user to add
+    :param user_profile: User profile template
+    :return: result dictionary
+    """
+    resp = self.client.service.addUser({
+        'userid': user_id,
+        'firstName': first_name,
+        'lastName': last_name,
+        'userProfile': user_profile,
+    })
 
-                                               display                           external
-            DN     partition    display        ascii          label               mask
-        [('77777', 'LINE_PT', 'Jim Smith', 'Jim Smith', 'Jim Smith - 77777', '0294127777')]
-        Add A phone
-        :param phone:
-        :param description:
-        :param product:
-        :param device_pool:
-        :param location:
-        :param phone_template:
-        :param common_device_config:
-        :param css:
-        :param aar_css:
-        :param subscribe_css:
-        :param lines:
-        :param dev_class:
-        :param protocol:
-        :param softkey_template:
-        :param enable_em:
-        :param em_service_name:
-        :param em_service_url:
-        :param em_url_button_enable:
-        :param em_url_button_index:
-        :param em_url_label:
-        :param ehook_enable:
-        :return:
-        """
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
 
-        req = {
-            'name': phone,
-            'description': description,
-            'product': product,
-            'class': dev_class,
-            'protocol': protocol,
-            'commonDeviceConfigName': common_device_config,
-            'softkeyTemplateName': softkey_template,
-            'phoneTemplateName': phone_template,
-            'devicePoolName': device_pool,
-            'locationName': location,
-            'enableExtensionMobility': enable_em,
-            'callingSearchSpaceName': css,
-            'automatedAlternateRoutingCssName': aar_css,
-            'subscribeCallingSearchSpaceName': subscribe_css,
-            'lines': {'line': []},
-            'services': {'service': []},
-            'vendorConfig': [{
-                'ehookEnable': ehook_enable
-            }]
-        }
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'User successfully added'
+        return result
+    elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+        result['response'] = 'User already exists'.format(user_id)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'User could not be added'
+        result['error'] = resp[1].faultstring
+        return result
 
-        if lines:
-            [req['lines']['line'].append({
-                'index': lines.index(i) + 1,
-                'dirn': {
-                    'pattern': i[0],
-                    'routePartitionName': i[1]
-                },
-                'display': i[2],
-                'displayAscii': i[3],
-                'label': i[4],
-                'e164Mask': i[5]
-            }) for i in lines]
 
-        if em_service_url:
-            req['services']['service'].append([{
-                'telecasterServiceName': em_service_name,
-                'name': em_service_name,
-                'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
-            }])
+def update_user_em(self,
+                   user_id,
+                   device_profile,
+                   default_profile,
+                   subscribe_css,
+                   primary_extension):
+    """
+    Update end user for extension mobility
+    :param user_id: User ID
+    :param device_profile: Device profile name
+    :param default_profile: Default profile name
+    :param subscribe_css: Subscribe CSS
+    :param primary_extension: Primary extension, must be a number from the device profile
+    :return: result dictionary
+    """
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
 
-        if em_url_button_enable:
-            req['services']['service'][0].update({'urlButtonIndex': em_url_button_index, 'urlLabel': em_url_label})
+    resp = self.client.service.getDeviceProfile(name=device_profile)
 
-        resp = self.client.service.addPhone(req)
+    if resp[0] == 500 and '{0} was not found'.format(device_profile) in resp[1].faultstring:
+        result['response'] = 'Device profile: {0} not found'.format(device_profile)
+        result['error'] = resp[1].faultstring
+        return result
 
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
+    else:
+        uuid = resp[1]['return']['deviceProfile']['_uuid'][1:-1]
 
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Phone successfully added'
-            return result
-        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['response'] = 'Phone already exists'.format(phone)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Phone could not be added'
-            result['error'] = resp[1].faultstring
-            return result
+    resp = self.client.service.updateUser(
+            userid=user_id,
+            phoneProfiles={'profileName': {'_uuid': uuid}},
+            defaultProfile=default_profile,
+            subscribeCallingSearchSpaceName=subscribe_css,
+            primaryExtension={'pattern': primary_extension},
+            associatedGroups={'userGroup': {'name': 'Standard CCM End Users'}}
+    )
 
-    def delete_phone(self, phone):
-        """
-        Delete a phone
-        :param phone: The name of the phone to delete
-        :return: result dictionary
-        """
-        resp = self.client.service.removePhone(name=phone)
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'User successfully updated'
+        return result
+    elif resp[0] == 500 and '{0} was not found'.format(user_id) in resp[1].faultstring:
+        result['response'] = 'User ID: {0} not found'.format(user_id)
+        result['error'] = resp[1].faultstring
+        return result
+    elif resp[0] == 500 and '{0} was not found'.format(default_profile) in resp[1].faultstring:
+        result['response'] = 'Default profile: {0} not found'.format(default_profile)
+        result['error'] = resp[1].faultstring
+        return result
+    elif resp[0] == 500 and '{0} was not found'.format(subscribe_css) in resp[1].faultstring:
+        result['response'] = 'Subscribe CSS: {0} not found'.format(subscribe_css)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'User could not be updated'
+        result['error'] = resp[1].faultstring
+        return result
 
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
 
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Phone successfully deleted'
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Phone: {0} not found'.format(phone)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Phone could not be deleted'
-            result['error'] = resp[1].faultstring
-            return result
+def update_user_credentials(self,
+                            user_id,
+                            password='',
+                            pin=''):
+    """
+    Update end user for credentials
+    :param user_id: User ID
+    :param password: Web interface password
+    :param pin: Extension mobility PIN
+    :return: result dictionary
+    """
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
 
-    def get_device_profiles(self, mini=True):
-        """
-        Get device profile details
-        :param mini: return a list of tuples of device profile details
-        :return: A list of dictionary's
-        """
-        resp = self.client.service.listDeviceProfile(
-                {'name': '%'}, returnedTags={
-                    'name': '',
-                    'product': '',
-                    'protocol': '',
-                    'phoneTemplateName': '',
-                })[1]['return']['deviceProfile']
-        if mini:
-            return [(i['name'],
-                     i['product'],
-                     i['protocol'],
-                     i['phoneTemplateName']['value'],
-                     ) for i in resp]
-        else:
-            return resp
-
-    def get_device_profile(self, profile):
-        """
-        Get device profile parameters
-        :param profile: profile name
-        :return: result dictionary
-        """
-        resp = self.client.service.getDeviceProfile(name=profile)
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = resp[1]['return']['deviceProfile']
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Profile: {0} not found'.format(profile)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Unknown error'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def add_device_profile(self,
-                           profile,
-                           description='',
-                           product='Cisco 7962',
-                           phone_template='Standard 7962G SCCP',
-                           dev_class='Device Profile',
-                           protocol='SCCP',
-                           softkey_template='Standard User',
-                           em_service_name='Extension Mobility',
-                           lines=[]):
-
-        """
-        Add A Device profile for use with extension mobility
-        lines takes a list of Tuples with properties for each line EG:
-
-                                               display                           external
-            DN     partition    display        ascii          label               mask
-        [('77777', 'LINE_PT', 'Jim Smith', 'Jim Smith', 'Jim Smith - 77777', '0294127777')]
-        :param profile:
-        :param description:
-        :param product:
-        :param phone_template:
-        :param lines:
-        :param dev_class:
-        :param protocol:
-        :param softkey_template:
-        :param em_service_name:
-        :return:
-        """
-
-        req = {
-            'name': profile,
-            'description': description,
-            'product': product,
-            'class': dev_class,
-            'protocol': protocol,
-            'softkeyTemplateName': softkey_template,
-            'phoneTemplateName': phone_template,
-            'lines': {'line': []},
-            'services': {'service': [{
-                'telecasterServiceName': em_service_name,
-                'name': em_service_name,
-                'url': 'http://{0}:8080/emapp/EMAppServlet?device=#DEVICENAME#&EMCC=#EMCC#'.format(self.cucm),
-            }]},
-        }
-
-        if lines:
-            [req['lines']['line'].append({
-                'index': lines.index(i) + 1,
-                'dirn': {
-                    'pattern': i[0],
-                    'routePartitionName': i[1]
-                },
-                'display': i[2],
-                'displayAscii': i[3],
-                'label': i[4],
-                'e164Mask': i[5]
-            }) for i in lines]
-
-        resp = self.client.service.addDeviceProfile(req)
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Device profile successfully added'
-            return result
-        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['response'] = 'Device profile already exists'.format(profile)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Device profile could not be added'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def delete_device_profile(self, profile):
-        """
-        Delete a device profile
-        :param profile: The name of the device profile to delete
-        :return: result dictionary
-        """
-        resp = self.client.service.removeDeviceProfile(name=profile)
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Device profile successfully deleted'
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Device profile: {0} not found'.format(profile)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Device profile could not be deleted'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def get_users(self, mini=True):
-        """
-        Get users details
-        :param mini: return a list of tuples of user details
-        :return: A list of dictionary's
-        """
-        resp = self.client.service.listUser(
-                {'userid': '%'}, returnedTags={
-                    'userid': '',
-                    'firstName': '',
-                    'lastName': '',
-                })[1]['return']['user']
-        if mini:
-            return [(i['userid'],
-                     i['firstName'],
-                     i['lastName'],
-                     ) for i in resp]
-        else:
-            return resp
-
-    def get_user(self, user_id):
-        """
-        Get user parameters
-        :param user_id: profile name
-        :return: result dictionary
-        """
-        resp = self.client.service.getUser(userid=user_id)
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = resp[1]['return']['user']
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'User: {0} not found'.format(user_id)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Unknown error'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def add_user(self,
-                 user_id,
-                 last_name,
-                 first_name='',
-                 user_profile='Standard (Factory Default) User Profile'):
-        """
-        Add a user
-        :param user_id: User ID of the user to add
-        :param first_name: First name of the user to add
-        :param last_name: Last name of the user to add
-        :param user_profile: User profile template
-        :return: result dictionary
-        """
-        resp = self.client.service.addUser({
-            'userid': user_id,
-            'firstName': first_name,
-            'lastName': last_name,
-            'userProfile': user_profile,
-        })
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'User successfully added'
-            return result
-        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['response'] = 'User already exists'.format(user_id)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'User could not be added'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def update_user_em(self,
-                       user_id,
-                       device_profile,
-                       default_profile,
-                       subscribe_css,
-                       primary_extension):
-        """
-        Update end user for extension mobility
-        :param user_id: User ID
-        :param device_profile: Device profile name
-        :param default_profile: Default profile name
-        :param subscribe_css: Subscribe CSS
-        :param primary_extension: Primary extension, must be a number from the device profile
-        :return: result dictionary
-        """
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        resp = self.client.service.getDeviceProfile(name=device_profile)
-
-        if resp[0] == 500 and '{0} was not found'.format(device_profile) in resp[1].faultstring:
-            result['response'] = 'Device profile: {0} not found'.format(device_profile)
-            result['error'] = resp[1].faultstring
-            return result
-
-        else:
-            uuid = resp[1]['return']['deviceProfile']['_uuid'][1:-1]
-
+    if password != '' and pin != '':
         resp = self.client.service.updateUser(
                 userid=user_id,
-                phoneProfiles={'profileName': {'_uuid': uuid}},
-                defaultProfile=default_profile,
-                subscribeCallingSearchSpaceName=subscribe_css,
-                primaryExtension={'pattern': primary_extension},
-                associatedGroups={'userGroup': {'name': 'Standard CCM End Users'}}
+                password=password,
+                pin=pin,
         )
 
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'User successfully updated'
-            return result
-        elif resp[0] == 500 and '{0} was not found'.format(user_id) in resp[1].faultstring:
-            result['response'] = 'User ID: {0} not found'.format(user_id)
-            result['error'] = resp[1].faultstring
-            return result
-        elif resp[0] == 500 and '{0} was not found'.format(default_profile) in resp[1].faultstring:
-            result['response'] = 'Default profile: {0} not found'.format(default_profile)
-            result['error'] = resp[1].faultstring
-            return result
-        elif resp[0] == 500 and '{0} was not found'.format(subscribe_css) in resp[1].faultstring:
-            result['response'] = 'Subscribe CSS: {0} not found'.format(subscribe_css)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'User could not be updated'
-            result['error'] = resp[1].faultstring
-            return result
+    elif password != '':
+        resp = self.client.service.updateUser(
+                userid=user_id,
+                password=password,
+        )
 
-    def update_user_credentials(self,
-                                user_id,
-                                password='',
-                                pin=''):
-        """
-        Update end user for credentials
-        :param user_id: User ID
-        :param password: Web interface password
-        :param pin: Extension mobility PIN
-        :return: result dictionary
-        """
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
+    elif pin != '':
+        resp = self.client.service.updateUser(
+                userid=user_id,
+                pin=pin,
+        )
+    else:
+        result['response'] = 'User could not be updated'
+        result['error'] = 'Password and/or Pin are required'
+        return result
 
-        if password != '' and pin != '':
-            resp = self.client.service.updateUser(
-                    userid=user_id,
-                    password=password,
-                    pin=pin,
-            )
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'User successfully updated'
+        return result
+    elif resp[0] == 500 and '{0} was not found'.format(user_id) in resp[1].faultstring:
+        result['response'] = 'User ID: {0} not found'.format(user_id)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'User could not be updated'
+        result['error'] = resp[1].faultstring
+        return result
 
-        elif password != '':
-            resp = self.client.service.updateUser(
-                    userid=user_id,
-                    password=password,
-            )
 
-        elif pin != '':
-            resp = self.client.service.updateUser(
-                    userid=user_id,
-                    pin=pin,
-            )
-        else:
-            result['response'] = 'User could not be updated'
-            result['error'] = 'Password and/or Pin are required'
-            return result
+def delete_user(self, user_id):
+    """
+    Delete a user
+    :param user_id: The name of the user to delete
+    :return: result dictionary
+    """
+    resp = self.client.service.removeUser(userid=user_id)
 
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'User successfully updated'
-            return result
-        elif resp[0] == 500 and '{0} was not found'.format(user_id) in resp[1].faultstring:
-            result['response'] = 'User ID: {0} not found'.format(user_id)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'User could not be updated'
-            result['error'] = resp[1].faultstring
-            return result
+    result = {
+        'success': False,
+        'response': '',
+        'error': '',
+    }
 
-    def delete_user(self, user_id):
-        """
-        Delete a user
-        :param user_id: The name of the user to delete
-        :return: result dictionary
-        """
-        resp = self.client.service.removeUser(userid=user_id)
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'User successfully deleted'
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'User: {0} not found'.format(user_id)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'User could not be deleted'
-            result['error'] = resp[1].faultstring
-            return result
+    if resp[0] == 200:
+        result['success'] = True
+        result['response'] = 'User successfully deleted'
+        return result
+    elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        result['response'] = 'User: {0} not found'.format(user_id)
+        result['error'] = resp[1].faultstring
+        return result
+    else:
+        result['response'] = 'User could not be deleted'
+        result['error'] = resp[1].faultstring
+        return result
