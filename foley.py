@@ -961,6 +961,33 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def delete_route_group(self, route_group):
+        """
+        Delete a Route group
+        :param route_group: The name of the Route group to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeRouteGroup(name=route_group)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = 'Route group successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Route group: {0} not found'.format(route_group)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Route group could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
+
     def get_route_lists(self, mini=True):
         """
         Get route lists
@@ -998,6 +1025,69 @@ class AXL(object):
             return result
         else:
             result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def add_route_list(self,
+                       route_list,
+                       description='',
+                       cm_group_name='Default',
+                       route_list_enabled='true',
+                       run_on_all_nodes='false',
+                       members=[]):
+
+        """
+        :param route_list:
+        :param description:
+        :param cm_group_name:
+        :param route_list_enabled:
+        :param run_on_all_nodes:
+        :param members:
+        :return:
+        """
+        req = {
+            'name': route_list,
+            'description': description,
+            'callManagerGroupName': cm_group_name,
+            'routeListEnabled': route_list_enabled,
+            'runOnEveryNode': run_on_all_nodes,
+            'members': {'member': []},
+        }
+
+        if members:
+            [req['members']['member'].append({
+                'routeGroupName': i,
+                'selectionOrder': members.index(i) + 1,
+                'calledPartyTransformationMask': '',
+                'callingPartyTransformationMask': '',
+                'digitDiscardInstructionName': '',
+                'callingPartyPrefixDigits': '',
+                'prefixDigitsOut': '',
+                'useFullyQualifiedCallingPartyNumber': 'Default',
+                'callingPartyNumberingPlan': 'Cisco CallManager',
+                'callingPartyNumberType': 'Cisco CallManager',
+                'calledPartyNumberingPlan': 'Cisco CallManager',
+                'calledPartyNumberType': 'Cisco CallManager',
+            }) for i in members]
+
+        resp = self.client.service.addRouteList(req)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = 'Route list successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['response'] = 'Route list already exists'.format(route_list)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Route list could not be added'
             result['error'] = resp[1].faultstring
             return result
 
@@ -1175,71 +1265,6 @@ class AXL(object):
             return result
         else:
             result['response'] = 'Media resource group list could not be deleted'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def add_route_group(self, route_group, members=[], distribution_algorithm='Top Down'):
-        """
-        Add route group
-        :param route_group:
-        :param members:
-        :param distribution_algorithm:
-        :return: result dictionary
-        """
-
-        resp = self.client.service.addRouteGroup({
-            'name': route_group,
-            'distributionAlgorithm': distribution_algorithm,
-            'members': {'member': []}
-        })
-
-        if members:
-            [resp['members']['member'].append({'deviceName': i,
-                                               'deviceSelectionOrder': members.index(i) + 1,
-                                               'port': 0}) for i in members]
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Route group successfully added'
-            return result
-        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['response'] = 'Route group already exists'.format(route_group)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Route group could not be added'
-            result['error'] = resp[1].faultstring
-            return result
-
-    def delete_route_group(self, route_group):
-        """
-        Delete a Route group
-        :param route_group: The name of the Route group to delete
-        :return: result dictionary
-        """
-        resp = self.client.service.removeRouteGroup(name=route_group)
-
-        result = {
-            'success': False,
-            'response': '',
-            'error': '',
-        }
-
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = 'Route group successfully deleted'
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Route group: {0} not found'.format(route_group)
-            result['error'] = resp[1].faultstring
-            return result
-        else:
-            result['response'] = 'Route group could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
