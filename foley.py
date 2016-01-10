@@ -1098,9 +1098,10 @@ class AXL(object):
         :return: A list of dictionary's
         """
         resp = self.client.service.listRoutePattern(
-                {'pattern': '%'}, returnedTags={'pattern': '', 'description': ''})[1]['return']['routePattern']
+                {'pattern': '%'}, returnedTags={
+                    'pattern': '', 'description': '', '_uuid': ''})[1]['return']['routePattern']
         if mini:
-            return [(i['pattern'], i['description']) for i in resp]
+            return [(i['pattern'], i['description'], i['_uuid'][1:-1]) for i in resp]
         else:
             return resp
 
@@ -1110,26 +1111,35 @@ class AXL(object):
         :param pattern: route pattern
         :return: result dictionary
         """
-        resp = self.client.service.getRoutePattern(pattern=pattern)
-
         result = {
             'success': False,
             'response': '',
             'error': '',
         }
 
-        if resp[0] == 200:
-            result['success'] = True
-            result['response'] = resp[1]['return']['routePattern']
-            return result
-        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+        uuid = self.client.service.listRoutePattern(
+                {'pattern': pattern}, returnedTags={'_uuid': ''})
+
+        if uuid[0] == 200 and uuid[1]['return'] == '':
             result['response'] = 'Route pattern: {0} not found'.format(pattern)
-            result['error'] = resp[1].faultstring
+            result['error'] = 'Route pattern: {0} not found'.format(pattern)
             return result
+
         else:
-            result['response'] = 'Unknown error'
-            result['error'] = resp[1].faultstring
-            return result
+            resp = self.client.service.getRoutePattern(uuid=uuid[1]['return']['routePattern'][0]['_uuid'][1:-1])
+
+            if resp[0] == 200:
+                result['success'] = True
+                result['response'] = resp[1]['return']['routePattern']
+                return result
+            elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+                result['response'] = 'Route pattern: {0} not found'.format(pattern)
+                result['error'] = resp[1].faultstring
+                return result
+            else:
+                result['response'] = 'Unknown error'
+                result['error'] = resp[1].faultstring
+                return result
 
     def get_media_resource_group(self, media_resource_group):
         return self.client.service.getMediaResourceGroup(name=media_resource_group)
