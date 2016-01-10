@@ -58,15 +58,6 @@ ucm.add_location(location='test_location')
 {'success': True, 'error': '', 'response': 'Location successfully added'}
 ```
 
-Methods return result as a dictionary of values
-```python
-{
-'success': True/False, 
-'error': 'AXL Error', 
-'response': 'Error Message'
-}
-```
-
 ####Adding a region
 ```python
 ucm.add_region(region='test_region')
