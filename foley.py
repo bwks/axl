@@ -2047,7 +2047,12 @@ class AXL(object):
             'error': '',
         }
 
-        if password != '' and pin != '':
+        if password == '' and pin == '':
+            result['response'] = 'User could not be updated'
+            result['error'] = 'Password and/or Pin are required'
+            return result
+
+        elif password != '' and pin != '':
             resp = self.client.service.updateUser(
                     userid=user_id,
                     password=password,
@@ -2065,10 +2070,6 @@ class AXL(object):
                     userid=user_id,
                     pin=pin,
             )
-        else:
-            result['response'] = 'User could not be updated'
-            result['error'] = 'Password and/or Pin are required'
-            return result
 
         if resp[0] == 200:
             result['success'] = True
