@@ -1037,13 +1037,14 @@ class AXL(object):
                        members=[]):
 
         """
-        :param route_list:
-        :param description:
-        :param cm_group_name:
-        :param route_list_enabled:
-        :param run_on_all_nodes:
-        :param members:
-        :return:
+        Add a route list
+        :param route_list: Route list name
+        :param description: Route list description
+        :param cm_group_name: Route list call mangaer group name
+        :param route_list_enabled: Enable route list
+        :param run_on_all_nodes: Run route list on all nodes
+        :param members: A list of route groups
+        :return: Result dictionary
         """
         req = {
             'name': route_list,
@@ -1117,8 +1118,8 @@ class AXL(object):
             'error': '',
         }
 
-        uuid = self.client.service.listRoutePattern(
-                {'pattern': pattern}, returnedTags={'_uuid': ''})
+        # Cant get pattern directly so get UUID first
+        uuid = self.client.service.listRoutePattern({'pattern': pattern}, returnedTags={'_uuid': ''})
 
         if uuid[0] == 200 and uuid[1]['return'] == '':
             result['response'] = 'Route pattern: {0} not found'.format(pattern)
@@ -1140,6 +1141,67 @@ class AXL(object):
                 result['response'] = 'Unknown error'
                 result['error'] = resp[1].faultstring
                 return result
+
+    def add_route_pattern(self,
+                          pattern,
+                          gateway='',
+                          route_list='',
+                          description='',
+                          partition=''):
+        """
+        Add a route pattern
+        :param pattern: Route pattern
+        :param gateway: Destination gateway
+        :param route_list: Destination route list
+               Either a gateway or route list can be used at the same time
+        :param description: Route pattern description
+        :param partition: Route pattern partition
+        :return: result dictionary
+        """
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        req = {
+            'pattern': pattern,
+            'description': description,
+            'destination': {},
+            'routePartitionName': partition,
+        }
+
+        if gateway == '' and route_list == '':
+            result['response'] = 'Either a gateway OR route list, is a required parameter'
+            result['error'] = 'Enter either a gateway OR route list, not both'
+            return result
+        if gateway != '' and route_list != '':
+            result['response'] = 'Enter a gateway OR route list, not both'
+            result['error'] = 'Destination can be a gateway OR route list, not both'
+            return result
+        elif gateway != '':
+            req['destination'].update({'gatewayName': gateway})
+        elif route_list != '':
+            req['destination'].update({'routeListName': route_list})
+
+        resp = self.client.service.addRoutePattern(req)
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = 'Pattern successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['response'] = 'Pattern already exists'.format(pattern)
+            result['error'] = resp[1].faultstring
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Gateway or route list: {0} not found'.format(destination)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Pattern could not be added'
+            result['error'] = resp[1].faultstring
+            return result
 
     def get_media_resource_group(self, media_resource_group):
         return self.client.service.getMediaResourceGroup(name=media_resource_group)
