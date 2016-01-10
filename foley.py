@@ -1175,14 +1175,16 @@ class AXL(object):
             result['response'] = 'Either a gateway OR route list, is a required parameter'
             result['error'] = 'Enter either a gateway OR route list, not both'
             return result
-        if gateway != '' and route_list != '':
+        elif gateway != '' and route_list != '':
             result['response'] = 'Enter a gateway OR route list, not both'
             result['error'] = 'Destination can be a gateway OR route list, not both'
             return result
         elif gateway != '':
             req['destination'].update({'gatewayName': gateway})
+            destination = gateway
         elif route_list != '':
             req['destination'].update({'routeListName': route_list})
+            destination = route_list
 
         resp = self.client.service.addRoutePattern(req)
 
