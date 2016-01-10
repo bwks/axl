@@ -1,7 +1,7 @@
 """
 Class to interface with cisco ucm axl api.
 Author: Brad Searle
-Version: 0.2.4
+Version: 0.2.5
 Dependencies:
  - suds-jurko: https://bitbucket.org/jurko/suds
 
