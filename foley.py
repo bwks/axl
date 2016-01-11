@@ -208,7 +208,7 @@ class AXL(object):
         resp = self.client.service.listRegion(
                 {'name': '%'}, returnedTags={'_uuid'})[1]['return']['region']
         if mini:
-            return [(i['_uuid']) for i in resp]
+            return [(i['_uuid'][1:-1]) for i in resp]
         else:
             return resp
 
@@ -361,6 +361,46 @@ class AXL(object):
             return result
         else:
             result['response'] = 'Region could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def get_srsts(self, mini=True):
+        """
+        Get all SRST details
+        :param mini: return a list of tuples of SRST details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listSrst(
+                {'name': '%'}, returnedTags={'_uuid': ''})[1]['return']['srst']
+        if mini:
+            return [(i['_uuid'][1:-1]) for i in resp]
+        else:
+            return resp
+
+    def get_srst(self, srst):
+        """
+        Get SRST information
+        :param srst: SRST name
+        :return: result dictionary
+        """
+        resp = self.client.service.getSrst(name=srst)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['srst']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'SRST: {0} not found'.format(srst)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
             result['error'] = resp[1].faultstring
             return result
 

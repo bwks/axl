@@ -104,6 +104,24 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(result['success'], True)
 
     # SRST
+    def test_get_srst_returns_successful_and_srst_details(self):
+        srst = 'test_get_srst'
+        ucm.add_srst(srst, '192.168.100.100')
+        result = ucm.get_srst(srst)
+
+        # clean up
+        ucm.delete_srst('test_get_srst')
+
+        self.assertEqual(result['success'], True) and self.assertEqual(result['response']['name'], srst)
+
+    def test_get_srsts_returns_all_srst_details(self):
+        result = ucm.get_srsts(mini=False)
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_srsts_mini_returns_all_srst_details_as_list_of_tuples(self):
+        result = ucm.get_srsts(mini=True)
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+
     def test_add_srst_and_delete_srst_is_successful(self):
         add_srst = ucm.add_srst('test_srst', '192.168.100.100')
         del_srst = ucm.delete_srst('test_srst')
