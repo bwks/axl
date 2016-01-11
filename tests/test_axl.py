@@ -15,26 +15,6 @@ ucm = AXL('admin', 'asdfpoiu', wsdl, cucm)
 class TestAXL(unittest.TestCase):
 
     # Location
-    def test_add_location_and_delete_location_is_successful(self):
-        add_loc = ucm.add_location('test_location')
-        del_loc = ucm.delete_location('test_location')
-        self.assertEqual(add_loc['success'], True) and self.assertEqual(del_loc['success'], True)
-
-    def test_add_duplicate_location_fails(self):
-            location = 'test_dup_location'
-            ucm.add_location(location)
-            duplicate = ucm.add_location(location)
-
-            # clean up
-            ucm.delete_location(location)
-
-            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
-
-    def test_delete_non_existing_location_fails(self):
-        location = 'location_not_exist'
-        result = ucm.delete_location(location)
-        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
-
     def test_get_location_returns_successful_and_location_details(self):
         location = 'Hub_None'
         result = ucm.get_location(location)
@@ -48,7 +28,40 @@ class TestAXL(unittest.TestCase):
         result = ucm.get_locations(mini=True)
         self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
 
+    def test_add_location_and_delete_location_is_successful(self):
+        add_loc = ucm.add_location('test_location')
+        del_loc = ucm.delete_location('test_location')
+        self.assertEqual(add_loc['success'], True) and self.assertEqual(del_loc['success'], True)
+
+    def test_add_duplicate_location_fails(self):
+        location = 'test_dup_location'
+        ucm.add_location(location)
+        duplicate = ucm.add_location(location)
+
+        # clean up
+        ucm.delete_location(location)
+
+        self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
+
+    def test_delete_non_existing_location_fails(self):
+        location = 'location_not_exist'
+        result = ucm.delete_location(location)
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
+
     # Region
+    def test_get_region_returns_successful_and_region_details(self):
+        region = 'Default'
+        result = ucm.get_region(region)
+        self.assertEqual(result['success'], True) and self.assertEqual(result['response']['name'], region)
+
+    def test_get_regions_returns_all_region_details(self):
+        result = ucm.get_regions(mini=False)
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_regions_mini_returns_all_region_details_as_list_of_tuples(self):
+        result = ucm.get_regions(mini=True)
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+
     def test_add_region_and_delete_region_is_successful(self):
         add_reg = ucm.add_region('test_region')
         del_reg = ucm.delete_region('test_region')

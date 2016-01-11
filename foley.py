@@ -199,8 +199,45 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_regions(self, mini=True):
+        """
+        Get region details
+        :param mini: return a list of tuples of region details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listRegion(
+                {'name': '%'}, returnedTags={'_uuid'})[1]['return']['region']
+        if mini:
+            return [(i['_uuid']) for i in resp]
+        else:
+            return resp
+
     def get_region(self, region):
-        return self.client.service.getRegion(name=region)
+        """
+        Get region information
+        :param region: Region name
+        :return: result dictionary
+        """
+        resp = self.client.service.getRegion(name=region)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['region']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Region: {0} not found'.format(region)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_region(self, region):
         """
