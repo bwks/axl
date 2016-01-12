@@ -79,3 +79,9 @@ ucm.delete_region(region='test_region')
  'error': Key value for constraint (informix.pk_region_pkid) is still being referenced.,
  'response': 'Region could not be deleted'}
 ```
+
+####Add a route list
+```python
+ucm.add_route_list(route_list='test_rl1', route_group='test_rg')
+{'success': True, 'response': 'Route list successfully added', 'error': ''}
+```
