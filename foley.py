@@ -865,8 +865,55 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
-    def get_h323_gateway(self):
-        return self.client.service.listH323Gateway({'name': '%'}, returnedTags={'name': '', 'sigDigits': ''})
+    def get_h323_gateways(self, mini=True):
+        """
+        Get H323 Gateways
+        :param mini: List of tuples of H323 Gateway details
+        :return: results dictionary
+        """
+        resp = self.client.service.listH323Gateway(
+                {'name': '%'},
+                returnedTags={'name': '',
+                              'description': '',
+                              'devicePoolName': '',
+                              'locationName': '',
+                              'sigDigits': ''})[1]['return']['h323Gateway']
+
+        if mini:
+            return [(i['name'],
+                     i['description'],
+                     i['devicePoolName']['value'],
+                     i['locationName']['value'],
+                     i['sigDigits']['value']) for i in resp]
+        else:
+            return resp
+
+    def get_h323_gateway(self, h323_gateway):
+        """
+        Get H323 Gateway parameters
+        :param h323_gateway: H323 Gateway name
+        :return: result dictionary
+        """
+        resp = self.client.service.getH323Gateway(name=h323_gateway)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['h323Gateway']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'H323 Gateway: {0} not found'.format(h323_gateway)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_h323_gateway(self,
                          h323_gateway,
