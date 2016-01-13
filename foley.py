@@ -755,6 +755,50 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_transcoders(self, mini=True):
+        """
+        Get transcoders
+        :param mini: List of tuples of transcoder details
+        :return: results dictionary
+        """
+        resp = self.client.service.listTranscoder(
+                {'name': '%'},
+                returnedTags={'name': '',
+                              'description': '',
+                              'devicePoolName': ''})[1]['return']['transcoder']
+
+        if mini:
+            return [(i['name'], i['description'], i['devicePoolName']['value']) for i in resp]
+        else:
+            return resp
+
+    def get_transcoder(self, transcoder):
+        """
+        Get conference bridge parameters
+        :param transcoder: conference bridge name
+        :return: result dictionary
+        """
+        resp = self.client.service.getTranscoder(name=transcoder)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['transcoder']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Transcoder: {0} not found'.format(transcoder)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
     def add_transcoder(self,
                        transcoder,
                        description='',
