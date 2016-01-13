@@ -143,6 +143,23 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Device Pool
+    def test_get_device_pool_returns_successful_and_device_pool_details(self):
+        device_pool = 'Default'
+        result = ucm.get_device_pool(device_pool)
+
+        # clean up
+        ucm.delete_device_pool(device_pool)
+
+        self.assertEqual(result['success'], True) and self.assertEqual(result['response']['name'], device_pool)
+
+    def test_get_device_pools_returns_all_device_pool_details(self):
+        result = ucm.get_device_pools(mini=False)
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_device_pools_mini_returns_all_device_pool_details_as_list_of_tuples(self):
+        result = ucm.get_device_pools(mini=True)
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+
     def test_add_device_pool_and_delete_device_pool_is_successful(self):
         device_pool = 'test_device_pool'
         add_device_pool = ucm.add_device_pool(device_pool)
@@ -255,6 +272,36 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Transcoder
+    def test_get_ctranscoder_successful_and_transcoder_details(self):
+        transcoder = 'test_get_tcdr'
+        ucm.add_transcoder(transcoder)
+        result = ucm.get_transcoder(transcoder)
+
+        # clean up
+        ucm.delete_transcoder(transcoder)
+
+        self.assertEqual(result['success'], True) and self.assertEqual(result['response']['name'], transcoder)
+
+    def test_get_transcoders_returns_all_transcoder_details(self):
+        transcoder = 'test_get_tcdrs'
+        ucm.add_transcoder(transcoder)
+        result = ucm.get_transcoders(mini=False)
+
+        # clean up
+        ucm.delete_transcoder(transcoder)
+
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_transcoders_mini_returns_all_transcoder_details_as_list_of_tuples(self):
+        transcoder = 'test_get_tcdrs'
+        ucm.add_transcoder(transcoder)
+        result = ucm.get_transcoders(mini=True)
+
+        # clean up
+        ucm.delete_transcoder(transcoder)
+
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+
     def test_add_transcoder_and_delete_transcoder_is_successful(self):
 
         transcoder = 'test_trans'
