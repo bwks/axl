@@ -272,7 +272,7 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Transcoder
-    def test_get_ctranscoder_successful_and_transcoder_details(self):
+    def test_get_transcoder_successful_and_transcoder_details(self):
         transcoder = 'test_get_tcdr'
         ucm.add_transcoder(transcoder)
         result = ucm.get_transcoder(transcoder)
@@ -326,6 +326,36 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # H323 Gateway
+    def test_get_h323_gateway_successful_and_h323_gateway_details(self):
+        h323_gateway = '192.168.100.111'
+        ucm.add_h323_gateway(h323_gateway)
+        result = ucm.get_h323_gateway(h323_gateway)
+
+        # clean up
+        ucm.delete_h323_gateway(h323_gateway)
+
+        self.assertEqual(result['success'], True) and self.assertEqual(result['response']['name'], h323_gateway)
+
+    def test_get_h323_gateways_returns_all_h323_gateway_details(self):
+        h323_gateway = '192.168.100.112'
+        ucm.add_h323_gateway(h323_gateway)
+        result = ucm.get_h323_gateways(mini=False)
+
+        # clean up
+        ucm.delete_h323_gateway(h323_gateway)
+
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_h323_gateways_mini_returns_all_h323_gateway_details_as_list_of_tuples(self):
+        h323_gateway = '192.168.100.113'
+        ucm.add_h323_gateway(h323_gateway)
+        result = ucm.get_h323_gateways(mini=True)
+
+        # clean up
+        ucm.delete_h323_gateway(h323_gateway)
+
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+
     def test_add_h323_gateway_and_delete_h323_gateway_is_successful(self):
         h323_gateway = '192.168.100.200'
         add_h323_gateway = ucm.add_h323_gateway(h323_gateway)
