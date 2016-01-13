@@ -637,6 +637,52 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_conference_bridges(self, mini=True):
+        """
+        Get conference bridges
+        :param mini: List of tuples of conference bridge details
+        :return: results dictionary
+        """
+        resp = self.client.service.listConferenceBridge(
+                {'name': '%'},
+                returnedTags={'name': '',
+                              'description': '',
+                              'devicePoolName': '',
+                              'locationName': ''})[1]['return']['conferenceBridge']
+
+        if mini:
+            return [(i['name'], i['description'], i['devicePoolName']['value'], i['locationName']['value'])
+                    for i in resp]
+        else:
+            return resp
+
+    def get_conference_bridge(self, conference_bridge):
+        """
+        Get conference bridge parameters
+        :param conference_bridge: conference bridge name
+        :return: result dictionary
+        """
+        resp = self.client.service.getConferenceBridge(name=conference_bridge)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['conferenceBridge']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Conference bridge: {0} not found'.format(conference_bridge)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
     def add_conference_bridge(self,
                               conference_bridge,
                               description='',
