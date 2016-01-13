@@ -214,6 +214,24 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Conference Bridge
+    def test_get_conference_bridge_successful_and_conference_bridge_details(self):
+        conference_bridge = 'test_get_cfb'
+        ucm.add_conference_bridge(conference_bridge)
+        result = ucm.get_conference_bridge(conference_bridge)
+
+        # clean up
+        ucm.delete_conference_bridge(conference_bridge)
+
+        self.assertEqual(result['success'], True) and self.assertEqual(result['response']['name'], conference_bridge)
+
+    def test_get_conference_bridges_returns_all_conference_bridge_details(self):
+        result = ucm.get_conference_bridges(mini=False)
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_conference_bridges_mini_returns_all_conference_bridge_details_as_list_of_tuples(self):
+        result = ucm.get_conference_bridges(mini=True)
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+
     def test_add_conference_bridge_and_delete_conference_bridge_is_successful(self):
         conference_bridge = 'test_cfb'
         add_conf_bridge = ucm.add_conference_bridge(conference_bridge)
