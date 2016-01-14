@@ -408,6 +408,36 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Media resource group
+    def test_get_media_resource_group_successful_and_media_resource_group_details(self):
+        media_resource_group = 'test_get_mrg'
+        ucm.add_media_resource_group(media_resource_group)
+        result = ucm.get_media_resource_group(media_resource_group)
+
+        # clean up
+        ucm.delete_media_resource_group(media_resource_group)
+
+        self.assertEqual(result['success'], True) and self.assertEqual(result['response']['name'], media_resource_group)
+
+    def test_get_media_resource_groups_returns_all_media_resource_group_details(self):
+        media_resource_group = 'test_get_mrgs'
+        ucm.add_media_resource_group(media_resource_group)
+        result = ucm.get_media_resource_groups(mini=False)
+
+        # clean up
+        ucm.delete_media_resource_group(media_resource_group)
+
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_media_resource_groups_mini_returns_all_media_resource_group_details_as_list_of_tuples(self):
+        media_resource_group = 'test_get_mrgs'
+        ucm.add_media_resource_group(media_resource_group)
+        result = ucm.get_media_resource_groups(mini=True)
+
+        # clean up
+        ucm.delete_media_resource_group(media_resource_group)
+
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+        
     def test_add_media_resource_group_and_delete_media_resource_group_is_successful(self):
         media_resource_group = 'test_mrg'
         add_media_resource_group = ucm.add_media_resource_group(media_resource_group)
