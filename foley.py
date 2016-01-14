@@ -1419,6 +1419,20 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_media_resource_groups(self, mini=True):
+        """
+        Get media resource groups
+        :param mini: return a list of tuples of route pattern details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listMediaResourceGroup(
+                {'name': '%'}, returnedTags={
+                    'name': '', 'description': ''})[1]['return']['mediaResourceGroup']
+        if mini:
+            return [(i['name'], i['description']) for i in resp]
+        else:
+            return resp
+
     def get_media_resource_group(self, media_resource_group):
         return self.client.service.getMediaResourceGroup(name=media_resource_group)
 
