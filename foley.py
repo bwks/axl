@@ -1434,7 +1434,31 @@ class AXL(object):
             return resp
 
     def get_media_resource_group(self, media_resource_group):
-        return self.client.service.getMediaResourceGroup(name=media_resource_group)
+        """
+        Get a media resource group details
+        :param media_resource_group: Media resource group name
+        :return: result dictionary
+        """
+        resp = self.client.service.getMediaResourceGroup(name=media_resource_group)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['mediaResourceGroup']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Media resouce group: {0} not found'.format(media_resource_group)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_media_resource_group(self,
                                  media_resource_group,
