@@ -540,6 +540,37 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Directory number
+    def test_get_directory_number_successful_and_directory_number_details(self):
+        directory_number = '999999'
+        ucm.add_directory_number(directory_number)
+        result = ucm.get_directory_number(directory_number)
+
+        # clean up
+        ucm.delete_directory_number(directory_number)
+
+        self.assertEqual(result['success'], True) and \
+        self.assertEqual(result['response']['name'], directory_number)
+
+    def test_get_directory_numbers_returns_all_directory_number_details(self):
+        directory_number = '888888'
+        ucm.add_directory_number(directory_number)
+        result = ucm.get_directory_numbers(mini=False)
+
+        # clean up
+        ucm.delete_directory_number(directory_number)
+
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_directory_numbers_mini_returns_all_media_resource_lists_details_as_list_of_tuples(self):
+        directory_number = '777777'
+        ucm.add_directory_number(directory_number)
+        result = ucm.get_directory_numbers(mini=True)
+
+        # clean up
+        ucm.delete_directory_number(directory_number)
+
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+        
     def test_add_directory_number_and_delete_directory_number_is_successful(self):
         directory_number = '12345678'
         add_directory_number = ucm.add_directory_number(directory_number)
