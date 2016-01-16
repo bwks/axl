@@ -1632,6 +1632,47 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_directory_numbers(self, mini=True):
+        """
+        Get directory numbers
+        :param mini: return a list of tuples of directory number details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listLine(
+                {'pattern': '%'}, returnedTags={
+                    'pattern': '', 'description': '', 'routePartitionName': ''})[1]['return']['line']
+        if mini:
+            return [(i['pattern'], i['description'], i['routePartitionName']) for i in resp]
+        else:
+            return resp
+
+    def get_directory_number(self, directory_number):
+        """
+        Get directory number details
+        :param directory_number: Directory number
+        :return: result dictionary
+        """
+        resp = self.client.service.getLine(pattern=directory_number)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['line']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Directory Number: {0} not found'.format(directory_number)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
     def add_directory_number(self,
                              pattern,
                              route_partition_name='',
