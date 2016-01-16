@@ -1954,6 +1954,55 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_phones(self, mini=True):
+        """
+        Get phone details
+        :param mini: return a list of tuples of phone details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listPhone(
+                {'name': '%'}, returnedTags={
+                    'name': '',
+                    'product': '',
+                    'protocol': '',
+                    'locationName': '',
+                })[1]['return']['phone']
+        if mini:
+            return [(i['name'],
+                     i['product'],
+                     i['protocol'],
+                     i['locationName']['value'],
+                     ) for i in resp]
+        else:
+            return resp
+
+    def get_phone(self, phone):
+        """
+        Get device profile parameters
+        :param phone: profile name
+        :return: result dictionary
+        """
+        resp = self.client.service.getPhone(name=phone)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['phone']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Phone: {0} not found'.format(phone)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
     def add_phone(self,
                   phone,
                   description='',
