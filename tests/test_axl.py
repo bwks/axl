@@ -595,6 +595,37 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # CTI route point
+    def test_get_cti_route_point_successful_and_cti_route_point_details(self):
+        cti_route_point = 'test_get_ctirp'
+        ucm.add_cti_route_point(cti_route_point, 'Default')
+        result = ucm.get_cti_route_point(cti_route_point)
+
+        # clean up
+        ucm.delete_cti_route_point(cti_route_point)
+
+        self.assertEqual(result['success'], True) and \
+        self.assertEqual(result['response']['name'], cti_route_point)
+
+    def test_get_cti_route_points_returns_all_cti_route_point_details(self):
+        cti_route_point = 'test_get_ctirp'
+        ucm.add_cti_route_point(cti_route_point, 'Default')
+        result = ucm.get_cti_route_points(mini=False)
+
+        # clean up
+        ucm.delete_cti_route_point(cti_route_point)
+
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_cti_route_points_mini_returns_all_media_resource_lists_details_as_list_of_tuples(self):
+        cti_route_point = 'test_get_ctirp'
+        ucm.add_cti_route_point(cti_route_point, 'Default')
+        result = ucm.get_cti_route_points(mini=True)
+
+        # clean up
+        ucm.delete_cti_route_point(cti_route_point)
+
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+
     def test_add_cti_route_point_and_delete_cti_route_point_is_successful(self):
         cti_route_point = 'test_cti_rp'
         add_cti_route_point = ucm.add_cti_route_point(cti_route_point)
