@@ -650,6 +650,37 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # Phones
+    def test_get_phone_successful_and_phone_details(self):
+        phone = 'sepffffffffffff'
+        ucm.add_phone(phone)
+        result = ucm.get_phone(phone)
+
+        # clean up
+        ucm.delete_phone(phone)
+
+        self.assertEqual(result['success'], True) and \
+        self.assertEqual(result['response']['name'], phone)
+
+    def test_get_phones_returns_all_phone_details(self):
+        phone = 'sepeeeeeeeeeeee'
+        ucm.add_phone(phone)
+        result = ucm.get_phones(mini=False)
+
+        # clean up
+        ucm.delete_phone(phone)
+
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_phones_mini_returns_all_media_resource_lists_details_as_list_of_tuples(self):
+        phone = 'sepdddddddddddd'
+        ucm.add_phone(phone)
+        result = ucm.get_phones(mini=True)
+
+        # clean up
+        ucm.delete_phone(phone)
+
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+
     def test_add_phone_and_delete_phone_is_successful(self):
         phone = 'sepaaaabbbbcccc'
         add_phone = ucm.add_phone(phone)
