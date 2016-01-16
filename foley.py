@@ -1452,7 +1452,7 @@ class AXL(object):
             result['response'] = resp[1]['return']['mediaResourceGroup']
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Media resouce group: {0} not found'.format(media_resource_group)
+            result['response'] = 'Media resource group: {0} not found'.format(media_resource_group)
             result['error'] = resp[1].faultstring
             return result
         else:
@@ -1529,8 +1529,46 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_media_resource_group_lists(self, mini=True):
+        """
+        Get media resource groups
+        :param mini: return a list of tuples of route pattern details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listMediaResourceList(
+                {'name': '%'}, returnedTags={
+                    'name': ''})[1]['return']['mediaResourceList']
+        if mini:
+            return [i['name'] for i in resp]
+        else:
+            return resp
+
     def get_media_resource_group_list(self, media_resource_group_list):
-        return self.client.service.getMediaResourceList(name=media_resource_group_list)
+        """
+        Get a media resource group list details
+        :param media_resource_group_list: Media resource group list name
+        :return: result dictionary
+        """
+        resp = self.client.service.getMediaResourceList(name=media_resource_group_list)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['mediaResourceList']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Media resource group list: {0} not found'.format(media_resource_group_list)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
 
     def add_media_resource_group_list(self, media_resource_group_list, members=[]):
         """
