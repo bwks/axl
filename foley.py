@@ -1815,6 +1815,47 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_cti_route_points(self, mini=True):
+        """
+        Get CTI route points
+        :param mini: return a list of tuples of CTI route point details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listCtiRoutePoint(
+                {'name': '%'}, returnedTags={
+                    'name': '', 'description': ''})[1]['return']['ctiRoutePoint']
+        if mini:
+            return [(i['name'], i['description']) for i in resp]
+        else:
+            return resp
+
+    def get_cti_route_point(self, cti_route_point):
+        """
+        Get CTI route point details
+        :param cti_route_point: CTI route point name
+        :return: result dictionary
+        """
+        resp = self.client.service.getCtiRoutePoint(name=cti_route_point)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['ctiRoutePoint']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'CTI route point: {0} not found'.format(cti_route_point)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
     def add_cti_route_point(self,
                             cti_route_point,
                             description='',
