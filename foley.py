@@ -1306,6 +1306,110 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
+    def get_partitions(self, mini=True):
+        """
+        Get partitions
+        :param mini: return a list of tuples of partition details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listRoutePartition(
+                {'name': '%'}, returnedTags={
+                    'name': '', 'description': ''})[1]['return']['routePartition']
+        if mini:
+            return [(i['name'], i['description']) for i in resp]
+        else:
+            return resp
+
+    def get_partition(self, partition):
+        """
+        Get partition details
+        :param partition: Partition name
+        :return: result dictionary
+        """
+        resp = self.client.service.getRoutePartition(name=partition)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['routePartition']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Route partition: {0} not found'.format(partition)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def add_partition(self,
+                      partition,
+                      description='',
+                      time_schedule_name='All the time'):
+        """
+        Add a partition
+        :param partition: Name of the partition to add
+        :param description: Partition description
+        :param time_schedule_name: Name of the time schedule to use
+        :return: result dictionary
+        """
+        resp = self.client.service.addRoutePartition({
+            'name': partition,
+            'description': description,
+            'timeScheduleIdName': time_schedule_name,
+        })
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = 'Partition successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['response'] = 'Partition already exists'.format(partition)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Partition could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_partition(self, partition):
+        """
+        Delete a partition
+        :param partition: The name of the partition to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeRoutePartition(name=partition)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = 'Partition successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Partition: {0} not found'.format(partition)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Partition could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
+
     def get_route_patterns(self, mini=True):
         """
         Get route patterns

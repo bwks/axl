@@ -539,6 +539,48 @@ class TestAXL(unittest.TestCase):
         result = ucm.delete_route_group(route_group)
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
+    # Partition
+    def test_get_partition_successful_and_partition_details(self):
+        partition = 'Global Learned Enterprise Numbers'
+        result = ucm.get_partition(partition)
+
+        self.assertEqual(result['success'], True) and \
+        self.assertEqual(result['response']['name'], partition)
+
+    def test_get_partitions_returns_all_partition_details(self):
+        partition = 'Global Learned Enterprise Numbers'
+        result = ucm.get_partitions(mini=False)
+
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_partitions_mini_returns_all_media_resource_lists_details_as_list_of_tuples(self):
+        result = ucm.get_partitions(mini=True)
+
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+
+    def test_add_partition_and_delete_partition_is_successful(self):
+        partition = 'test_pt'
+        add_partition = ucm.add_partition(partition)
+        del_partition = ucm.delete_partition(partition)
+
+        self.assertEqual(add_partition['success'], True) and \
+        self.assertEqual(del_partition['success'], True)
+
+    def test_add_duplicate_partition_fails(self):
+            partition = 'test_pt_dup'
+            ucm.add_partition(partition)
+            duplicate = ucm.add_partition(partition)
+
+            # clean up
+            ucm.delete_partition(partition)
+
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
+
+    def test_delete_non_existing_partition_fails(self):
+        partition = 'test_pt_none'
+        result = ucm.delete_partition(partition)
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
+
     # Directory number
     def test_get_directory_number_successful_and_directory_number_details(self):
         directory_number = '999999'
@@ -579,7 +621,7 @@ class TestAXL(unittest.TestCase):
         self.assertEqual(add_directory_number['success'], True) and \
         self.assertEqual(del_directory_number['success'], True)
 
-    def test_add_directory_number_fails(self):
+    def test_add_duplicate_directory_number_fails(self):
             directory_number = '9876543210'
             ucm.add_directory_number(directory_number)
             duplicate = ucm.add_directory_number(directory_number)
@@ -591,7 +633,7 @@ class TestAXL(unittest.TestCase):
 
     def test_delete_non_existing_directory_number_fails(self):
         directory_number = '987654321'
-        result = ucm.delete_route_group(directory_number)
+        result = ucm.delete_directory_number(directory_number)
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
     # CTI route point
