@@ -1,7 +1,7 @@
 """
 Class to interface with cisco ucm axl api.
 Author: Brad Searle
-Version: 0.2.5
+Version: 0.2.6
 Dependencies:
  - suds-jurko: https://bitbucket.org/jurko/suds
 
@@ -1407,6 +1407,118 @@ class AXL(object):
             return result
         else:
             result['response'] = 'Partition could not be deleted'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def get_calling_search_spaces(self, mini=True):
+        """
+        Get calling search spaces
+        :param mini: return a list of tuples of css details
+        :return: A list of dictionary's
+        """
+        resp = self.client.service.listCss(
+                {'name': '%'}, returnedTags={
+                    'name': '', 'description': ''})[1]['return']['css']
+        if mini:
+            return [(i['name'], i['description']) for i in resp]
+        else:
+            return resp
+
+    def get_calling_search_space(self, css):
+        """
+        Get CSS details
+        :param css: CSS name
+        :return: result dictionary
+        """
+        resp = self.client.service.getCss(name=css)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['css']
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Calling search space: {0} not found'.format(css)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def add_calling_search_space(self,
+                                 css,
+                                 description='',
+                                 members=[]):
+        """
+        Add a CSS
+        :param css: Name of the CSS to add
+        :param description: CSS description
+        :param members: A list of partitions to add to the CSS
+        :return: result dictionary
+        """
+        req = {
+            'name': css,
+            'description': description,
+            'members': {'member': []},
+        }
+
+        if members:
+            [req['members']['member'].append({
+                'routePartitionName': i,
+                'index': members.index(i) + 1,
+            }) for i in members]
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        resp = self.client.service.addCss(req)
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = 'Calling search space successfully added'
+            return result
+        elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
+            result['response'] = 'Calling search space already exists'.format(css)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Calling search space could not be added'
+            result['error'] = resp[1].faultstring
+            return result
+
+    def delete_calling_search_space(self, css):
+        """
+        Delete a CSS
+        :param css: The name of the partition to delete
+        :return: result dictionary
+        """
+        resp = self.client.service.removeCss(name=css)
+
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = 'Calling search space successfully deleted'
+            return result
+        elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
+            result['response'] = 'Calling search space: {0} not found'.format(css)
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Calling search space could not be deleted'
             result['error'] = resp[1].faultstring
             return result
 
