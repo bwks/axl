@@ -581,6 +581,61 @@ class TestAXL(unittest.TestCase):
         result = ucm.delete_partition(partition)
         self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
 
+    # Calling search space
+    def test_get_calling_search_space_successful_and_calling_search_space_details(self):
+        calling_search_space = 'test_get_css'
+        ucm.add_calling_search_space(calling_search_space)
+        result = ucm.get_calling_search_space(calling_search_space)
+
+        # Cleanup
+        ucm.delete_calling_search_space(calling_search_space)
+
+        self.assertEqual(result['success'], True) and \
+        self.assertEqual(result['response']['name'], calling_search_space)
+
+    def test_get_calling_search_spaces_returns_all_calling_search_space_details(self):
+        calling_search_space = 'test_get_all_css'
+        ucm.add_calling_search_space(calling_search_space)
+        result = ucm.get_calling_search_spaces(mini=False)
+
+        # Cleanup
+        ucm.delete_calling_search_space(calling_search_space)
+
+        self.assertIsInstance(result, list) and len(list) > 0 and self.assertIsInstance(result[0], dict)
+
+    def test_get_calling_search_spaces_mini_returns_all_media_resource_lists_details_as_list_of_tuples(self):
+        calling_search_space = 'test_get_mini_css'
+        ucm.add_calling_search_space(calling_search_space)
+        result = ucm.get_calling_search_spaces(mini=True)
+
+        # Cleanup
+        ucm.delete_calling_search_space(calling_search_space)
+
+        self.assertIsInstance(result, list) and self.assertIsInstance(result[0], tuple)
+
+    def test_add_calling_search_space_and_delete_calling_search_space_is_successful(self):
+        calling_search_space = 'test_css'
+        add_calling_search_space = ucm.add_calling_search_space(calling_search_space)
+        del_calling_search_space = ucm.delete_calling_search_space(calling_search_space)
+
+        self.assertEqual(add_calling_search_space['success'], True) and \
+        self.assertEqual(del_calling_search_space['success'], True)
+
+    def test_add_duplicate_calling_search_space_fails(self):
+            calling_search_space = 'test_css_dup'
+            ucm.add_calling_search_space(calling_search_space)
+            duplicate = ucm.add_calling_search_space(calling_search_space)
+
+            # clean up
+            ucm.delete_calling_search_space(calling_search_space)
+
+            self.assertEqual(duplicate['success'], False) and self.assertIn(duplicate['response'], 'already exists')
+
+    def test_delete_non_existing_calling_search_space_fails(self):
+        calling_search_space = 'test_css_none'
+        result = ucm.delete_calling_search_space(calling_search_space)
+        self.assertEqual(result['success'], False) and self.assertIn(result['response'], 'not found')
+
     # Directory number
     def test_get_directory_number_successful_and_directory_number_details(self):
         directory_number = '999999'
