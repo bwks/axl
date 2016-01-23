@@ -1422,13 +1422,13 @@ class AXL(object):
         else:
             return resp
 
-    def get_calling_search_space(self, css):
+    def get_calling_search_space(self, calling_search_space):
         """
-        Get CSS details
-        :param css: CSS name
+        Get Calling search space details
+        :param calling_search_space: Calling search space name
         :return: result dictionary
         """
-        resp = self.client.service.getCss(name=css)
+        resp = self.client.service.getCss(name=calling_search_space)
 
         result = {
             'success': False,
@@ -1441,7 +1441,7 @@ class AXL(object):
             result['response'] = resp[1]['return']['css']
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Calling search space: {0} not found'.format(css)
+            result['response'] = 'Calling search space: {0} not found'.format(calling_search_space)
             result['error'] = resp[1].faultstring
             return result
         else:
@@ -1450,18 +1450,18 @@ class AXL(object):
             return result
 
     def add_calling_search_space(self,
-                                 css,
+                                 calling_search_space,
                                  description='',
                                  members=[]):
         """
-        Add a CSS
-        :param css: Name of the CSS to add
-        :param description: CSS description
+        Add a Calling search space
+        :param calling_search_space: Name of the CSS to add
+        :param description: Calling search space description
         :param members: A list of partitions to add to the CSS
         :return: result dictionary
         """
         req = {
-            'name': css,
+            'name': calling_search_space,
             'description': description,
             'members': {'member': []},
         }
@@ -1485,7 +1485,7 @@ class AXL(object):
             result['response'] = 'Calling search space successfully added'
             return result
         elif resp[0] == 500 and 'duplicate value' in resp[1].faultstring:
-            result['response'] = 'Calling search space already exists'.format(css)
+            result['response'] = 'Calling search space already exists'.format(calling_search_space)
             result['error'] = resp[1].faultstring
             return result
         else:
@@ -1493,13 +1493,13 @@ class AXL(object):
             result['error'] = resp[1].faultstring
             return result
 
-    def delete_calling_search_space(self, css):
+    def delete_calling_search_space(self, calling_search_space):
         """
-        Delete a CSS
-        :param css: The name of the partition to delete
+        Delete a Calling search space
+        :param calling_search_space: The name of the partition to delete
         :return: result dictionary
         """
-        resp = self.client.service.removeCss(name=css)
+        resp = self.client.service.removeCss(name=calling_search_space)
 
         result = {
             'success': False,
@@ -1512,7 +1512,7 @@ class AXL(object):
             result['response'] = 'Calling search space successfully deleted'
             return result
         elif resp[0] == 500 and 'was not found' in resp[1].faultstring:
-            result['response'] = 'Calling search space: {0} not found'.format(css)
+            result['response'] = 'Calling search space: {0} not found'.format(calling_search_space)
             result['error'] = resp[1].faultstring
             return result
         else:
