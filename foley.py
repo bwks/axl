@@ -22,10 +22,9 @@ from suds.xsd.doctor import ImportDoctor
 
 class AXL(object):
     """
-    The AXL Class sets up the connection to the call manager.
+    The AXL class sets up the connection to the call manager with methods for configuring UCM.
     Tested with environment of;
     Centos 7, Python 3, suds-jurko.
-    Your mileage may vary.
     """
 
     def __init__(self, username, password, wsdl, cucm, cucm_version=10):
@@ -35,7 +34,6 @@ class AXL(object):
         :param wsdl: wsdl file location
         :param cucm: UCM IP address
         :param cucm_version: UCM version
-        :return:
 
         example usage:
         >>> from axl.foley import AXL
@@ -1689,21 +1687,23 @@ class AXL(object):
         :param members: Media resource group members
         :return: result dictionary
         """
-        resp = self.client.service.addMediaResourceGroup({
+        req = {
             'name': media_resource_group,
             'description': description,
             'multicast': multicast,
             'members': {'member': []}
-        })
-
-        if members:
-            [resp['members']['member'].append({'deviceName': i}) for i in members]
+        }
 
         result = {
             'success': False,
             'response': '',
             'error': '',
         }
+
+        if members:
+            [req['members']['member'].append({'deviceName': i}) for i in members]
+
+        resp = self.client.service.addMediaResourceGroup(req)
 
         if resp[0] == 200:
             result['success'] = True
@@ -1793,20 +1793,22 @@ class AXL(object):
         :param members: A list of members
         :return:
         """
-        resp = self.client.service.addMediaResourceList({
+        req = {
             'name': media_resource_group_list,
             'members': {'member': []}
-        })
-
-        if members:
-            [resp['members']['member'].append({'order': members.index(i),
-                                               'mediaResourceGroupName': i}) for i in members]
+        }
 
         result = {
             'success': False,
             'response': '',
             'error': '',
         }
+
+        if members:
+            [req['members']['member'].append({'order': members.index(i),
+                                              'mediaResourceGroupName': i}) for i in members]
+
+        resp = self.client.service.addMediaResourceList(req)
 
         if resp[0] == 200:
             result['success'] = True
