@@ -918,6 +918,7 @@ class AXL(object):
                          description='',
                          device_pool='Default',
                          location='Hub_None',
+                         media_resource_group_list='',
                          prefix_dn='',
                          sig_digits='99',
                          css='',
@@ -949,6 +950,7 @@ class AXL(object):
         :param description:
         :param device_pool:
         :param location:
+        :param media_resource_group_list: Media resource group list name
         :param prefix_dn:
         :param sig_digits: Significant digits, 99 = ALL
         :param css:
@@ -986,6 +988,7 @@ class AXL(object):
             'automatedAlternateRoutingCssName': aar_css,
             'devicePoolName': device_pool,
             'locationName': location,
+            'mediaResourceListName': media_resource_group_list,
             'aarNeighborhoodName': aar_neighborhood,
             'pstnAccess': pstn_access,
             'sigDigits': sig_digits,
