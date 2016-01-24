@@ -523,6 +523,8 @@ class AXL(object):
                         date_time_group='CMLocal',
                         region='Default',
                         location='',
+                        route_group='',
+                        media_resource_group_list='',
                         srst='Disable',
                         cm_group='Default',
                         network_locale='Australia'):
@@ -533,6 +535,8 @@ class AXL(object):
         :param date_time_group: Date time group name
         :param region: Region name
         :param location: Location name
+        :param route_group: Route group name
+        :param media_resource_group_list: Media resource group list name
         :param srst: SRST name
         :param cm_group: CM Group name
         :param network_locale: Network locale name
@@ -543,6 +547,8 @@ class AXL(object):
             'dateTimeSettingName': date_time_group,  # update to state timezone
             'regionName': region,
             'locationName': location,
+            'localRouteGroup': {'name': 'Standard Local Route Group', 'value': route_group},
+            'mediaResourceListName': media_resource_group_list,
             'srstName': srst,
             'callManagerGroupName': cm_group,
             'networkLocale': network_locale,
