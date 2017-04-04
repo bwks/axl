@@ -86,6 +86,15 @@ class AXL(object):
         else:
             return resp
 
+    def executeSQLQuery(self, query):
+        """
+        Execute SQL query
+        :param query: SQL Query to execute
+        :return: result of SQL query
+        """
+        resp = self.client.service.executeSQLQuery(query)
+        return resp
+
     def get_location(self, location):
         """
         Get device pool parameters
