@@ -86,6 +86,32 @@ class AXL(object):
         else:
             return resp
 
+    def execute_sql_query(self, query):
+        """
+        Execute SQL query
+        :param query: SQL Query to execute
+        :return: result dictionary
+        """
+        resp = self.client.service.executeSQLQuery(query)
+        result = {
+            'success': False,
+            'response': '',
+            'error': '',
+        }
+
+        if resp[0] == 200:
+            result['success'] = True
+            result['response'] = resp[1]['return']['row']
+            return result
+        elif resp[0] == 500 and 'syntax' in resp[1].faultstring:
+            result['response'] = 'Syntax error'
+            result['error'] = resp[1].faultstring
+            return result
+        else:
+            result['response'] = 'Unknown error'
+            result['error'] = resp[1].faultstring
+            return result
+
     def get_location(self, location):
         """
         Get device pool parameters
